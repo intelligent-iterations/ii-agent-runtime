@@ -1,8 +1,4 @@
-<p align="center">
-  <img src="assets/intelligent-iterations.png" width="128" height="128" alt="Intelligent Iterations" />
-</p>
-
-# II Agent Runtime
+# II Agent Runtime 🦉
 
 **Secure. Deploy. Measure.**
 
