@@ -1,4 +1,4 @@
-# II Agent Runtime 🦉
+# II Agent Runtime 🫍
 
 **Secure. Deploy. Measure.**
 
