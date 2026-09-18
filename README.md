@@ -402,3 +402,8 @@ Use this repository’s issues to discuss ideas and bugs, and pull requests to p
 ## Security
 
 Report suspected vulnerabilities privately through [GitHub private vulnerability reporting](https://github.com/intelligent-iterations/ii-agent-runtime/security/advisories/new). Do not include credentials or sensitive details in public issues or pull requests.
+
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE).
+Copyright 2026 Intelligent Iterations.
