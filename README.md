@@ -6,15 +6,22 @@ Open infrastructure for the agent harnesses your engineering team already uses.
 
 Bring Claude Code, Codex, OpenCode, or your own harness. `II Agent Runtime` gives you reusable building blocks to configure what your agents can actually access, deploy versioned setups into your infrastructure, and capture the execution data you need to understand and evaluate what happened.
 
-Use the TypeScript SDK, CLI, provider adapters, and local console as a starting point — then extend them for your environment.
+The implemented package is a TypeScript library. You supply the harness, models,
+credentials, infrastructure, storage and workload lifecycle.
 
-You keep your harnesses, models, identities, credentials, compute, and telemetry storage.
+## Example: agent factory
 
-`II Agent Runtime` gives you the infrastructure around them.
+`example/agent-factory` is a reference
+implementation built with II Agent Runtime. Run its setup wizard, define coding
+agents in YAML, and launch them in ephemeral VMs through self-hosted GitHub Actions.
 
-> **Status:** roadmap. We're designing and building this in the open. This repository currently contains the project overview, not a released runtime. The capabilities below describe the planned direction.
+The example includes a ready-to-use image recipe, agent configuration, scheduling
+and result verification. Use it as a starting point, adapt its defaults, or build
+your own application with the runtime’s deployment, permission and telemetry tools.
 
-This README is the complete public documentation for `ii-agent-runtime`.
+## Product direction
+
+The sections below describe where we’re going. See [what works today](#what-works-and-whats-next) for current support.
 
 [Join our Discord](https://discord.gg/DEGQX9RVNn)
 
@@ -65,7 +72,8 @@ flowchart LR
   style yours fill:transparent,stroke:#8796a8
 ```
 
-Supported harnesses have adapters out of the box.
+The intended distribution will include adapters for supported harnesses. Today,
+the package adapts Codex transcript events and executes caller-prepared commands.
 
 If you have an internal harness or an integration we haven't built, the interfaces are intended to be extended.
 
@@ -123,7 +131,8 @@ flowchart LR
 
 Agent A may not hold the deployment credential itself, but it can influence something that does.
 
-`II Agent Runtime` can model those configured relationships and surface circular or indirect permission paths that aren't obvious from looking at individual keys alone.
+The planned permission analysis will model these relationships and surface
+circular or indirect paths. Its rule semantics and evaluator remain undecided.
 
 ### Gate who can launch the setup
 
@@ -361,7 +370,7 @@ The deployment layer is designed to grow across the places teams actually run an
 | **Google Cloud**                       | Initial cloud target                  |
 | **AWS**                                | Planned provider support              |
 | **Azure**                              | Planned provider support              |
-| **GitHub**                             | Planned integration/deployment target |
+| **GitHub**                             | Secret inspection, token audit and runner operations implemented |
 | **Internal infrastructure**            | Custom adapters                       |
 
 If your company has its own compute platform, sandbox service, runner system or deployment API, `II Agent Runtime` should be something you can extend — not something that forces you to replace it.
@@ -394,6 +403,34 @@ So we're building the reusable parts once.
 **Secure. Deploy. Measure.**
 
 ---
+
+## What works and what's next
+
+| Works today | What's next |
+| --- | --- |
+| Write setups in YAML, JSON or TypeScript | Save setup versions and run history |
+| Run Codex in the factory example | Claude Code support |
+| Check GitHub secrets and warn about broad token access | Define and check access rules |
+| Run local Tart or Linux KVM VMs with self-hosted GitHub jobs | Windows; Google Cloud and batch deployments |
+| Collect logs, hide secrets and save run files | More complete run and cost tracking |
+| Export SWE-bench predictions and read results | More benchmark support |
+| Compile setups, check access and preview changes from the CLI | More CLI commands and a web console |
+| Try the Linux factory example | Clean-host setup, upgrades and a public release |
+
+### Verification
+
+The current implementation passed 85 runtime tests, three real OpenTofu contracts,
+and documentation checks. The example passed 139 tests and a live API-key agent
+run with separate self-hosted worker and verifier jobs, matching published and
+verified commits, retained usage and confirmed VM/runner cleanup. This reused an
+existing host and cached Linux image; it was not a clean-OS test. A Linux KVM host
+also passed live two-VM network isolation and crash cleanup checks. A later
+two-agent batch completed with both coding and independent verification jobs
+successful, two accepted candidates, and confirmed VM and runner cleanup. The
+Linux proof ran in a disposable KVM-enabled container; a clean-OS installation
+has not been tested.
+
+[Package exports](src/index.ts)
 
 ## Contributing
 

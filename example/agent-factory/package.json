@@ -1,0 +1,50 @@
+{
+  "name": "@intelligent-iterations/agent-factory-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.16"
+  },
+  "scripts": {
+    "build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && tsx --test test/*.test.ts",
+    "check": "npm run typecheck && npm test",
+    "prepack": "npm run build",
+    "setup": "bash setup.sh",
+    "launch": "node dist/cli.js launch",
+    "verify:linux": "tsx scripts/verify-libvirt-isolation.ts",
+    "verify:linux-crash": "tsx scripts/verify-libvirt-crash.ts"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./evaluators/swe-bench/run.py": "./evaluators/swe-bench/run.py"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "images",
+    "evaluators",
+    "examples/controller.mjs",
+    "scripts/onboard.mjs",
+    "scripts/bootstrap-host.sh",
+    "scripts/bootstrap-linux.sh",
+    "setup.sh"
+  ],
+  "dependencies": {
+    "@intelligent-iterations/ii-agent-runtime": "file:../..",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.4",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  },
+  "bin": {
+    "ii-factory": "dist/cli.js"
+  }
+}

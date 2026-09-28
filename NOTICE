@@ -1,0 +1,9 @@
+II Open Agent Runtime
+Copyright 2026 Intelligent Iterations
+
+This product includes software developed at Intelligent Iterations
+(https://github.com/intelligent-iterations).
+
+Telemetry components include adapted code from ii-agent-telemetry,
+Copyright 2026 Intelligent Iterations, Apache License 2.0.
+See TELEMETRY_LICENSE and telemetry-import.json for source revision and changes.

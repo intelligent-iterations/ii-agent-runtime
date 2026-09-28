@@ -1,0 +1,54 @@
+{
+  "name": "@intelligent-iterations/ii-agent-runtime",
+  "version": "0.1.0",
+  "description": "Standalone infrastructure primitives for prepared agent workloads",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "check": "npm run check:types && npm run typecheck && npm run boundaries && npm test",
+    "boundaries": "tsx scripts/check-boundaries.ts",
+    "test:tofu": "npm run build && tsx --test test-contract/opentofu.test.ts",
+    "prepare": "npm run build",
+    "test:package": "npm run build && tsx --test test-contract/authoring-package.test.ts",
+    "generate:types": "tsx scripts/generate-setup-types.ts",
+    "check:types": "tsx scripts/generate-setup-types.ts --check"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ajv": "8.20.0",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.4",
+    "json-schema-to-typescript": "16.0.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  },
+  "private": true,
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/setup.json": "./schemas/setup.json"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "LICENSE",
+    "NOTICE",
+    "modules",
+    "TELEMETRY_LICENSE",
+    "telemetry-import.json"
+  ],
+  "engines": {
+    "node": ">=22.16"
+  },
+  "bin": {
+    "ii-agent-runtime": "./dist/cli.js"
+  }
+}

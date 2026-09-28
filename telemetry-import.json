@@ -1,0 +1,51 @@
+{
+  "repository": "https://github.com/intelligent-iterations/ii-agent-telemetry",
+  "revision": "afc8cd8afd93b4c8c51cf3b8184741df98a7514a",
+  "license": "Apache-2.0",
+  "files": [
+    {
+      "source": "src/redact.ts",
+      "destination": "src/telemetry/imported/redact.ts",
+      "sourceSha256": "23ba49ba26468ea5828686fd674f9b4d7504da5b8edc73408da3818313a37914"
+    },
+    {
+      "source": "src/ingest/types.ts",
+      "destination": "src/telemetry/imported/ingest/types.ts",
+      "sourceSha256": "8f3ffbc3a4145eca710aceb879958d630aa19a7994d9c6c74b2dd9987cc10d1a"
+    },
+    {
+      "source": "src/ingest/codexWatcher.ts",
+      "destination": "src/telemetry/imported/ingest/codexWatcher.ts",
+      "sourceSha256": "1856c824e7eacffde71b252e51e076e60fd95eb464fd453bc71b9619273219b3"
+    },
+    {
+      "source": "src/storage/evalDb.ts",
+      "destination": "src/telemetry/imported/storage/evalDb.ts",
+      "sourceSha256": "3b89fe8143b5d484e44473be84cb2cd18cd310aced5fc1bbcc849d35048abd2a"
+    },
+    {
+      "source": "src/pipeline/types.ts",
+      "destination": "src/telemetry/imported/pipeline/types.ts",
+      "sourceSha256": "f73f50109dd9e00f9180c3d94df020f06e7800734f6565610e3ad05e2d7426b9"
+    },
+    {
+      "source": "src/pipeline/eventPipeline.ts",
+      "destination": "src/telemetry/imported/pipeline/eventPipeline.ts",
+      "sourceSha256": "91fa5a0a247dbfe9a581d3266c53e06952b233973ead1b1469cf8eb79607ca78"
+    },
+    {
+      "source": "src/pipeline/sinks.ts",
+      "destination": "src/telemetry/imported/pipeline/sinks.ts",
+      "sourceSha256": "70180912d8678f0000f70c5924e5ec291f44b6ee0997fa81854efd1c663b5ac5"
+    }
+  ],
+  "adaptations": [
+    "Remove grading report table and writer from event store.",
+    "Replace destination error text with stable delivery_failed codes.",
+    "Reset stateful denylist regexes and preserve prototype-named data keys.",
+    "Import only local JSONL sink; consumers supply destinations.",
+    "Represent absent Codex context window as null for canonical JSON records.",
+    "Accept a consumer-supplied telemetry store, including asynchronous writes, instead of requiring EvalDatabase in the event pipeline.",
+    "Replace storage exception text with a stable failure message and prevent sink delivery when persistence fails."
+  ]
+}

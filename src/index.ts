@@ -1,0 +1,44 @@
+export { canonicalJson, parseSetup, secretIdentity, setupDigest } from './setup.js';
+export type { Setup, SecretReference, GitHubSecretReference, ProviderSecretReference } from './setup.js';
+export { checkSetup, withLaunchChecks, LaunchDenied } from './checks.js';
+export type { CheckContext, CheckStatus, Observation, LaunchEvidence } from './checks.js';
+export { assessCapabilityGrant } from './access.js';
+export type { CapabilityGrant, AccessFinding } from './access.js';
+export { inspectGitHubSecret, createGitHubTransport } from './providers/github.js';
+export type { GitHubTransport, GitHubResponse } from './providers/github.js';
+export { inspectGitHubRepositoryToken, githubTokenRequest } from './providers/github-token-audit.js';
+export type { GitHubTokenAudit } from './providers/github-token-audit.js';
+export { runnerIntent, findGitHubRunner, registerGitHubRunner, removeGitHubRunner, RunnerOperationUncertain } from './providers/github-runners.js';
+export type { RunnerIntent, RunnerReceipt, RunnerState } from './providers/github-runners.js';
+export { prepareTartDeployment, loadDeployment, recoverDeploymentLock } from './deployment/workspace.js';
+export type { DeploymentManifest } from './deployment/workspace.js';
+export { deployTart, destroyTart, planTart } from './deployment/opentofu.js';
+export { inspectTartDeployment, startTartVM, tartAddress, removeTartVM, executeTartGuest } from './deployment/tart.js';
+export type { VMObservation } from './deployment/tart.js';
+export { createTelemetryCollector } from './telemetry/collector.js';
+export type { TelemetryOptions, RunCorrelation } from './telemetry/collector.js';
+export type { EvalEventInput as TelemetryEvent, EvalEventRecord as TelemetryRecord } from './telemetry/imported/ingest/types.js';
+export type { EventSink as TelemetrySink, PipelineResult as TelemetryDelivery } from './telemetry/imported/pipeline/types.js';
+export { JsonlSink as JsonlTelemetrySink } from './telemetry/imported/pipeline/sinks.js';
+export { captureGuestFiles, captureTartFiles } from './deployment/capture.js';
+export type { CapturedFile, CaptureOptions, GuestCommand } from './deployment/capture.js';
+export { createSqliteTelemetryStore, readSqliteTelemetryEvents } from './telemetry/sqlite.js';
+export type { TelemetryStore } from './telemetry/store.js';
+export { prepareSweBenchEvaluation, importSweBenchResult } from './swe-bench.js';
+export type { SweBenchInput, SweBenchEvaluation } from './swe-bench.js';
+
+export { tartOptions } from './deployment/tart-options.js';
+export type { TartOptions } from './deployment/tart-options.js';
+
+export { compileSetup, compileSetupJson, compileSetupYaml, defineSetup, SetupCompilationError, SETUP_SOURCE_MAX_BYTES } from './authoring.js';
+export type { CompiledSetup } from './authoring.js';
+
+export type { TartPlan } from './deployment/opentofu.js';
+export { libvirtOptions } from './deployment/libvirt-options.js';
+export type { LibvirtOptions } from './deployment/libvirt-options.js';
+export { prepareLibvirtDeployment, loadLibvirtDeployment, recoverLibvirtLock } from './deployment/libvirt-workspace.js';
+export type { LibvirtManifest } from './deployment/libvirt-workspace.js';
+export { createLibvirtVM, startLibvirtVM, inspectLibvirtDeployment, executeLibvirtGuest, libvirtAddress, removeLibvirtVM } from './deployment/libvirt.js';
+export { deployLibvirt, destroyLibvirt } from './deployment/libvirt-tofu.js';
+export { commandCheckContext } from './check-command.js';
+export type { CompilationIssue } from './authoring.js';

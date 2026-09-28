@@ -1,0 +1,8 @@
+{
+  "baseImage": "ghcr.io/cirruslabs/debian@sha256:544f204fbfcca222f34256650534defc2fa7864fada3f84fb2d5cec1dd7eb7d6",
+  "node": "22.22.0",
+  "codex": "0.156.1",
+  "actionsRunner": "2.337.0",
+  "actionsRunnerSha256": "9b1dc70626422526e3c94767cf024896beb15da5342a3f4819bf2feac13e0393",
+  "nodeSha256": "1bf1eb9ee63ffc4e5d324c0b9b62cf4a289f44332dfef9607cea1a0d9596ba6f"
+}

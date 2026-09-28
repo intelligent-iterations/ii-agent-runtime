@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "authoring",
+  "revision": "r1",
+  "harness": {
+    "name": "custom",
+    "version": "1"
+  },
+  "deployment": {
+    "provider": "tart",
+    "image": "registry.example/base@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "cpu": 2,
+    "memoryMiB": 2048,
+    "options": {
+      "os": "linux",
+      "network": {
+        "mode": "softnet",
+        "blockCidrs": [
+          "10.0.0.0/8"
+        ],
+        "blockHostAddresses": true
+      },
+      "timeouts": {
+        "commandMs": 60000,
+        "guestCommandMs": 60000,
+        "addressWaitMs": 35000,
+        "tofuMs": 600000,
+        "tofuLockMs": 30000
+      }
+    }
+  },
+  "secrets": [
+    {
+      "provider": "github",
+      "repository": "org/repo",
+      "key": "REPO"
+    },
+    {
+      "provider": "github",
+      "repository": "org/repo",
+      "organization": "org",
+      "key": "ORG"
+    },
+    {
+      "provider": "github",
+      "repository": "org/repo",
+      "environment": "staging",
+      "key": "ENV"
+    },
+    {
+      "provider": "custom",
+      "resource": "secret-store",
+      "key": "custom-key"
+    }
+  ],
+  "capture": {
+    "paths": [
+      "z.txt",
+      "a.txt"
+    ]
+  }
+}
