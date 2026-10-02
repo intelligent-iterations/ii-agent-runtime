@@ -1,0 +1,39 @@
+{
+  "name": "@intelligent-iterations/software-factory-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.16"
+  },
+  "scripts": {
+    "build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run build && npm test",
+    "prepack": "npm run build",
+    "test": "tsx --test test/*.test.ts",
+    "test:package": "npm --prefix ../.. run build && npm run build && tsx --test test-contract/package.test.ts"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "worker-image"
+  ],
+  "dependencies": {
+    "libsodium-wrappers": "0.8.4",
+    "yaml": "2.9.1",
+    "commander": "14.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.4",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "@intelligent-iterations/ii-agent-runtime": "file:../.."
+  },
+  "bin": {
+    "software-factory": "dist/actions-cli.js"
+  },
+  "peerDependencies": {
+    "@intelligent-iterations/ii-agent-runtime": "0.1.0"
+  }
+}

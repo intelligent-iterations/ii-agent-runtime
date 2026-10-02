@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+node_modules/
+dist/
+*.tgz
+
+# Software Factory authoring scratch
+.factory/
+
+# Never committed: local agent instructions, environments, keys and secrets.
+CLAUDE.local.md
+AGENTS.local.md
+.env*
+*.key
+*.pem
+secrets/

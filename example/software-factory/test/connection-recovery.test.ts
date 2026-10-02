@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+import { mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { openConnectionStore, recoverConnectionLock } from '../src/connection-store.js';
+
+test('a lock left by a process that is gone is recovered automatically, preserving connection state; live owners are explained', async t => {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'factory-lock-recovery-')));
+  const marker = randomUUID();
+  writeFileSync(join(root, '.test-owner'), marker, { flag: 'wx' });
+  t.after(() => { assert.equal(readFileSync(join(root, '.test-owner'), 'utf8'), marker); rmSync(root, { recursive: true }); });
+  const module = new URL('../src/connection-store.ts', import.meta.url).href;
+  const program = `import {openConnectionStore} from ${JSON.stringify(module)}; const store=openConnectionStore(process.argv[1]);store.save({schemaVersion:1,organization:'sample',repositories:[{name:'sample/repo',id:1}],secretScope:'organization',phase:'creation-started'});process.stdout.write('ready');setInterval(()=>{},1000);`;
+  const child = spawn(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', program, root], { stdio: ['ignore', 'pipe', 'pipe'] });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5000);
+  t.after(() => { clearTimeout(timer); child.kill('SIGKILL'); });
+  const [chunk] = await once(child.stdout, 'data', { signal: controller.signal });
+  assert.equal(chunk.toString(), 'ready');
+  assert.throws(() => recoverConnectionLock(root), new RegExp(`process ${child.pid}\\) may still be alive`));
+  assert.throws(() => openConnectionStore(root), new RegExp(`still running \\(process ${child.pid}\\).*Ctrl\\+Z`));
+  const closed = once(child, 'close');
+  child.kill('SIGKILL'); await closed;
+  const before = readFileSync(join(root, 'connection.json'), 'utf8');
+  const store = openConnectionStore(root);
+  assert.equal(readFileSync(join(root, 'connection.json'), 'utf8'), before);
+  assert.equal(store.load()?.phase, 'creation-started');
+  store.close();
+  writeFileSync(join(root, 'onboarding.lock'), randomUUID(), { mode: 0o600 });
+  assert.throws(() => recoverConnectionLock(root), /Legacy or incomplete/);
+  assert.throws(() => openConnectionStore(root), /cannot be verified \(Legacy or incomplete.*delete that file/);
+});

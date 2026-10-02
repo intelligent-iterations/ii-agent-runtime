@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { mkdtempSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync, realpathSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { loadConfigurationArtifact, saveConfigurationArtifact } from '../src/runtime/artifacts.js';
+import { compileConfiguration } from '../src/runtime/configuration.js';
+import { fixture } from './runtime-fixture.js';
+
+test('configuration artifacts are independently verifiable and reject corruption, swaps, missing bytes and symlinks', t => {
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'runtime-artifact-test-')));
+  const owner = randomUUID();
+  writeFileSync(join(root, '.test-owner'), owner, { flag: 'wx' });
+  t.after(() => { assert.equal(readFileSync(join(root, '.test-owner'), 'utf8'), owner); rmSync(root, { recursive: true }); });
+  const config = fixture();
+  const expected = compileConfiguration(config);
+  const artifact = saveConfigurationArtifact(root, config);
+  assert.deepEqual(loadConfigurationArtifact(artifact, expected.artifactDigest, 1048576), expected);
+  const bytes = readFileSync(join(artifact, 'canonical.json'));
+  writeFileSync(join(artifact, 'canonical.json'), Buffer.concat([bytes, Buffer.from(' ')]));
+  assert.throws(() => loadConfigurationArtifact(artifact, expected.artifactDigest, 1048576), /integrity/);
+  writeFileSync(join(artifact, 'canonical.json'), bytes);
+  assert.throws(() => loadConfigurationArtifact(artifact, expected.artifactDigest, bytes.length - 1), 'a configuration larger than the caller allows is refused');
+  config.instructions = 'Different task';
+  const other = saveConfigurationArtifact(root, config);
+  assert.throws(() => loadConfigurationArtifact(other, expected.artifactDigest, 1048576), /integrity/);
+  renameSync(join(artifact, 'canonical.json'), join(artifact, 'saved.json'));
+  assert.throws(() => loadConfigurationArtifact(artifact, expected.artifactDigest, 1048576));
+  symlinkSync(join(artifact, 'saved.json'), join(artifact, 'canonical.json'));
+  assert.throws(() => loadConfigurationArtifact(artifact, expected.artifactDigest, 1048576));
+  renameSync(join(other, 'manifest.json'), join(other, 'manifest.pending'));
+  assert.throws(() => loadConfigurationArtifact(other, compileConfiguration(config).artifactDigest, 1048576));
+});
