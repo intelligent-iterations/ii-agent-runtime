@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discord
+    url: https://discord.gg/DEGQX9RVNn
+    about: Ask questions and discuss ideas with the community.
+  - name: Report a security issue
+    url: https://github.com/intelligent-iterations/ii-agent-runtime/security/advisories/new
+    about: Report vulnerabilities privately. Do not open a public issue.

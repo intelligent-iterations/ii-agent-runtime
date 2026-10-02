@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://intelligentiterations.com/schemas/runtime-configuration.json",
+  "title": "RuntimeConfiguration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "revision", "instructions", "harness", "environment", "source", "launchPolicy", "limits"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "id": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,99}$" },
+    "revision": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "instructions": { "type": "string", "minLength": 1, "maxLength": 32768 },
+    "harness": {
+      "description": "Which agent runs in the worker, and the model it uses. Selects the harness and model provider adapters.",
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "version", "model"],
+      "properties": {
+        "name": { "const": "codex" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "model": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,99}$" }
+      }
+    },
+    "environment": {
+      "description": "Where the agent runs. Selects the execution target adapter; docker is a hardened container on the machine that runs the pipeline.",
+      "type": "object", "additionalProperties": false,
+      "required": ["provider", "image", "cpu", "memoryMiB"],
+      "properties": {
+        "provider": { "const": "docker" },
+        "image": { "type": "string", "maxLength": 512, "pattern": "^[a-zA-Z0-9][a-zA-Z0-9./:_-]*@sha256:[a-f0-9]{64}$" },
+        "cpu": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "memoryMiB": { "type": "integer", "minimum": 256, "maximum": 8192 },
+        "setup": {
+          "description": "Dependency installation before the agent starts, with internet access and no credentials in the worker. Defaults to enabled, detected from the repository's lockfiles.",
+          "type": "object", "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "timeoutMinutes": { "type": "integer", "minimum": 1, "maximum": 30 },
+            "commands": { "type": "array", "minItems": 1, "maxItems": 10, "items": { "type": "string", "minLength": 1, "maxLength": 500, "pattern": "^[^\\u0000\\r\\n]+$" } }
+          }
+        }
+      }
+    },
+    "source": {
+      "description": "Where the code lives. Selects the source host adapter; github is a GitHub App installation that issues short-lived, repository-scoped tokens. permissions is what the agent's token may do in the repository; it defaults to contents: write, enough to push a task branch.",
+      "type": "object", "additionalProperties": false,
+      "required": ["provider", "repository", "appId", "installationId", "additionalRepositories"],
+      "properties": {
+        "provider": { "const": "github" },
+        "repository": { "$ref": "#/definitions/repository" },
+        "appId": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "installationId": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "permissions": { "$ref": "#/definitions/repositoryPermissions" },
+        "requireAppOwner": {
+          "description": "Also require the App itself to be owned by the repository's owner, not only installed there.",
+          "type": "boolean"
+        },
+        "additionalRepositories": {
+          "type": "array", "maxItems": 10,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["repository", "permissions"],
+            "properties": {
+              "repository": { "$ref": "#/definitions/repository" },
+              "permissions": { "$ref": "#/definitions/repositoryPermissions" }
+            }
+          }
+        }
+      }
+    },
+    "launchPolicy": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["mode", "minimumPermission"],
+          "properties": {
+            "mode": { "const": "authorized-author" },
+            "minimumPermission": { "$ref": "#/definitions/permission" }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["mode", "minimumPermission", "label"],
+          "properties": {
+            "mode": { "const": "maintainer-approval" },
+            "minimumPermission": { "$ref": "#/definitions/permission" },
+            "label": { "type": "string", "minLength": 1, "maxLength": 50, "pattern": "^[a-zA-Z0-9][a-zA-Z0-9: _-]*$" }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["mode", "allowPublicContributors"],
+          "properties": {
+            "mode": { "const": "any-author" },
+            "allowPublicContributors": { "const": true }
+          }
+        }
+      ]
+    },
+    "limits": {
+      "type": "object", "additionalProperties": false,
+      "required": ["enabled", "maxConcurrent", "maxRunsPerSubject", "maxRunsPerMonth", "timeoutMinutes", "maxModelRequests", "maxInputTokensPerRequest", "maxOutputTokensPerRequest", "maxModelCostMicrousdPerRun", "maxCostMicrousdPerMonth", "inputMicrousdPerMillionTokens", "outputMicrousdPerMillionTokens", "computeMicrousdPerMinute"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "maxConcurrent": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "maxRunsPerSubject": { "description": "Runs one task subject (for example one issue) may start.", "type": "integer", "minimum": 1, "maximum": 100 },
+        "maxRunsPerMonth": { "type": "integer", "minimum": 1, "maximum": 100000 },
+        "timeoutMinutes": { "description": "At most 55, so a run ends before its one-hour source tokens expire.", "type": "integer", "minimum": 1, "maximum": 55 },
+        "overheadMinutes": { "description": "Minutes the host spends around each run (start-up, evidence upload, teardown), reserved with the run. Defaults to 0.", "type": "integer", "minimum": 0, "maximum": 60 },
+        "maxModelRequests": { "type": "integer", "minimum": 1, "maximum": 1000 },
+        "maxInputTokensPerRequest": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "maxOutputTokensPerRequest": { "type": "integer", "minimum": 1, "maximum": 100000 },
+        "maxModelCostMicrousdPerRun": { "$ref": "#/definitions/cost" },
+        "maxCostMicrousdPerMonth": { "$ref": "#/definitions/cost" },
+        "inputMicrousdPerMillionTokens": { "$ref": "#/definitions/cost" },
+        "outputMicrousdPerMillionTokens": { "$ref": "#/definitions/cost" },
+        "computeMicrousdPerMinute": { "description": "What one minute of the execution host costs, reserved for the run and its overhead.", "type": "integer", "minimum": 0, "maximum": 1000000000 }
+      }
+    }
+  },
+  "definitions": {
+    "repository": { "type": "string", "maxLength": 200, "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*/[a-zA-Z0-9][a-zA-Z0-9_.-]*$" },
+    "repositoryPermissions": {
+      "type": "object", "additionalProperties": false, "minProperties": 1,
+      "properties": {
+        "contents": { "enum": ["read", "write"] },
+        "issues": { "enum": ["read", "write"] },
+        "pull_requests": { "enum": ["read", "write"] }
+      }
+    },
+    "permission": { "enum": ["read", "triage", "write", "maintain", "admin"] },
+    "cost": { "type": "integer", "minimum": 1, "maximum": 1000000000000 }
+  }
+}

@@ -1,20 +1,19 @@
 # II Agent Runtime 🫍
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/intelligent-iterations/ii-agent-runtime/badge)](https://scorecard.dev/viewer/?uri=github.com/intelligent-iterations/ii-agent-runtime)
+
 **Secure. Deploy. Measure.**
 
 Open infrastructure for the agent harnesses your engineering team already uses.
 
 Bring Claude Code, Codex, OpenCode, or your own harness. `II Agent Runtime` gives you reusable building blocks to configure what your agents can actually access, deploy versioned setups into your infrastructure, and capture the execution data you need to understand and evaluate what happened.
 
-Use the TypeScript SDK, CLI, provider adapters, and local console as a starting point — then extend them for your environment.
+The implemented package is a TypeScript library. You supply the harness, models,
+credentials, infrastructure, storage and workload lifecycle.
 
-You keep your harnesses, models, identities, credentials, compute, and telemetry storage.
+## Product direction
 
-`II Agent Runtime` gives you the infrastructure around them.
-
-> **Status:** roadmap. We're designing and building this in the open. This repository currently contains the project overview, not a released runtime. The capabilities below describe the planned direction.
-
-This README is the complete public documentation for `ii-agent-runtime`.
+The sections below describe where we're going. See [what works today](#what-works-and-whats-next) for current support.
 
 [Join our Discord](https://discord.gg/DEGQX9RVNn)
 
@@ -65,7 +64,8 @@ flowchart LR
   style yours fill:transparent,stroke:#8796a8
 ```
 
-Supported harnesses have adapters out of the box.
+The intended distribution will include adapters for supported harnesses. Today,
+the package adapts Codex transcript events and executes caller-prepared commands.
 
 If you have an internal harness or an integration we haven't built, the interfaces are intended to be extended.
 
@@ -93,7 +93,7 @@ flowchart LR
 
 `II Agent Runtime` gives you a way to configure and validate those boundaries as part of the agent setup.
 
-An agent can be assigned the credentials and resources needed for its job — and nothing else.
+An agent can be assigned the credentials and resources needed for its job - and nothing else.
 
 The underlying provider still enforces the permission:
 
@@ -123,7 +123,8 @@ flowchart LR
 
 Agent A may not hold the deployment credential itself, but it can influence something that does.
 
-`II Agent Runtime` can model those configured relationships and surface circular or indirect permission paths that aren't obvious from looking at individual keys alone.
+The planned permission analysis will model these relationships and surface
+circular or indirect paths. Its rule semantics and evaluator remain undecided.
 
 ### Gate who can launch the setup
 
@@ -361,10 +362,33 @@ The deployment layer is designed to grow across the places teams actually run an
 | **Google Cloud**                       | Initial cloud target                  |
 | **AWS**                                | Planned provider support              |
 | **Azure**                              | Planned provider support              |
-| **GitHub**                             | Planned integration/deployment target |
+| **GitHub**                             | Hardened containers on GitHub-hosted runners, scoped App tokens, issue intake and pull requests implemented |
 | **Internal infrastructure**            | Custom adapters                       |
 
-If your company has its own compute platform, sandbox service, runner system or deployment API, `II Agent Runtime` should be something you can extend — not something that forces you to replace it.
+If your company has its own compute platform, sandbox service, runner system or deployment API, `II Agent Runtime` should be something you can extend - not something that forces you to replace it.
+
+### One pipeline, adapters chosen by configuration
+
+Consumers describe what to run. The configuration decides where it runs and against which code host; the consumer decides how tasks arrive. A consumer launches every agent through one call:
+
+```ts
+import { createPipeline } from '@intelligent-iterations/ii-agent-runtime/pipeline';
+
+const { report } = await createPipeline(compiled, { trigger, consumer, secrets, host }).run({ onEvent, describeChange });
+```
+
+Every pipeline runs the same stages: authorize, admit, provision, check out, set up, grant, isolate, confirm, execute, verify and deliver. Each stage goes through a port (`src/pipeline/ports.ts`). The stages and the ports name no provider, and a check refuses any import of an adapter into them; the composition root (`src/pipeline/create-pipeline.ts`) is the only place that picks one:
+
+| Port | Chosen by | Adapters today |
+| --- | --- | --- |
+| `ExecutionTarget`: where the agent runs | `environment.provider` | `docker`: a hardened container on the machine that runs the pipeline, created with OpenTofu |
+| `SourceHost`: where the code lives | `source.provider` | `github`: a GitHub App installation on an organization or a user, with repository-scoped tokens, push verification and pull requests |
+| `Intake`: where the task came from | `trigger.kind` | `github-issue`: an issue that names the repository to change, with the accepted issue actions and start limits chosen by the consumer. `custom`: the consumer's own intake, such as a chat message or a command line |
+| `Harness` and `ModelProvider` | `harness.name` | `codex`: Codex with OpenAI's Responses API |
+
+Configuration (`schemas/runtime-configuration.json`) holds no secrets and nothing specific to one consumer: keys are passed when the pipeline starts, and each consumer keeps its own settings in its own files. The runtime names none of its consumers either. Each one passes its `consumer` identity, for example `{ name: 'sample-app', displayName: 'Sample App' }`, and every durable name is derived from it: its task branches, its commit author, and the records an adapter keeps, such as the GitHub adapters' workflow path and admission ledger.
+
+A value with no adapter, such as `environment.provider: aws`, is refused with `UnsupportedPipelineTarget`. Nothing falls back to another provider. Today each setting has one adapter; a new one is added behind the same ports, in the composition root, and callers do not change. A consumer that composes its own adapters can call `runPipeline` with its own ports.
 
 ---
 
@@ -395,9 +419,47 @@ So we're building the reusable parts once.
 
 ---
 
+## What works and what's next
+
+| Works today | What's next |
+| --- | --- |
+| One pipeline API (`createPipeline`): the execution target, code host and harness are chosen in configuration, and the trigger by the consumer | A second adapter for each port |
+| Execution target: hardened Docker containers on the machine that runs the pipeline, such as a GitHub-hosted runner | VMs; AWS, Google Cloud and internal platforms |
+| Harness: Codex with OpenAI models, behind a gateway that enforces request, token and spend limits | Claude Code and other harnesses |
+| Code host: GitHub, with short-lived tokens scoped to one repository, push verification and pull requests | Other code hosts |
+| Triggers: GitHub issues, or any intake the consumer supplies | Built-in Jira, Linear and Slack intakes |
+| Isolated workers: the network reaches only the gateway, and keys never enter the worker | Custom images per workload |
+| Dependency setup before the agent starts, with no keys present | Setup limited to package registries |
+| Launch checks: who may launch, concurrency and run limits, per-run and monthly budgets reserved before any spend | Return unused reservations; cost reporting |
+| Versioned configuration in JSON, YAML or TypeScript, validated and pinned by digest | Saved configuration versions and run history |
+
+The [Software Factory example](example/software-factory/) builds on the runtime: an organization files issues in one private repository, and agents open pull requests in its other repositories.
+
+### Verification
+
+The runtime passes its 62 tests. The Software Factory example passes its own 49
+tests and a package contract test, reaching the runtime only through its package. On 2026-10-01 the example ran end to end on GitHub: the pipeline checked
+out a test React site, installed its dependencies with `npm ci`, ran Codex in an
+isolated worker that built the site successfully, verified the push and opened
+the pull request. A clean machine and a second organization have not been tested yet.
+
+[Package exports](src/index.ts)
+
+## Example: software factory
+
+`example/software-factory` is a reference
+implementation built with II Agent Runtime. Its setup wizard gives an organization
+a private hub repository and a GitHub App. People file issues in the hub, and
+agents run in hardened containers on GitHub-hosted runners and open pull requests
+in the organization's other repositories.
+
+The example includes a worker image recipe, agent configuration and result
+verification. Use it as a starting point, adapt its defaults, or build your own
+application with the runtime's pipeline, permission and telemetry tools.
+
 ## Contributing
 
-Use this repository’s issues to discuss ideas and bugs, and pull requests to propose changes. Keep public documentation in this README and keep its links self-contained or pointed at public resources. Changes require review before merging.
+Use this repository's issues to discuss ideas and bugs, and pull requests to propose changes. Keep public documentation in this README and keep its links self-contained or pointed at public resources. Changes require review before merging.
 
 ## Security
 
