@@ -21,7 +21,7 @@
     "libsodium-wrappers": "0.8.4"
   },
   "devDependencies": {
-    "@types/node": "22.20.4",
+    "@types/node": "26.6.3",
     "json-schema-to-typescript": "16.0.0",
     "tsx": "4.23.15",
     "typescript": "5.9.3"
