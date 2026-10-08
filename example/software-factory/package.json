@@ -23,7 +23,7 @@
   "dependencies": {
     "libsodium-wrappers": "0.8.4",
     "yaml": "2.9.1",
-    "commander": "14.0.1"
+    "commander": "15.0.0"
   },
   "devDependencies": {
     "@types/node": "22.20.4",
