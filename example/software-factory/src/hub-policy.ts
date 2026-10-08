@@ -48,7 +48,7 @@ export function readHubPolicy(policy: string): Record<string, any> {
     for (const inner of allowed ? Object.keys(data[key]) : []) if (!allowed?.includes(inner)) throw Error(`Unknown hub policy setting: ${key}.${inner}`);
   }
   // Older policies name where the hub runs; it always runs on its GitHub-hosted runner, so only that is accepted.
-  if (data.environment?.provider !== undefined && data.environment.provider !== 'github-actions') throw Error('environment.provider must be github-actions (or omitted)');
+  if (data.environment?.provider !== undefined && !['github-actions', 'docker', 'openshell'].includes(data.environment.provider)) throw Error('environment.provider must be docker, openshell, or legacy github-actions (or omitted)');
   if (data.environment?.runner !== undefined && data.environment.runner !== 'ubuntu-latest') throw Error('environment.runner must be ubuntu-latest (or omitted)');
   if (data.artifacts?.provider !== undefined && data.artifacts.provider !== 'github-actions') throw Error('artifacts.provider must be github-actions (or omitted)');
   return data;
@@ -113,7 +113,7 @@ export function compileHubPolicy(policy: string, manifest: HubManifest, target: 
     instructions: typeof data.instructions === 'string' ? `${data.instructions}\n\n${FACTORY_AGENT_NOTE}` : data.instructions,
     harness: { name, version, model },
     // The hub job runs the agent in a container on its own runner.
-    environment: { provider: 'docker', image, cpu, memoryMiB, ...(setup === undefined ? {} : { setup }) },
+    environment: { provider: data.environment?.provider === 'openshell' ? 'openshell' : 'docker', image, cpu, memoryMiB, ...(setup === undefined ? {} : { setup }) },
     // The agent may push its task branch; the hub opens the pull request and replies with its own tokens.
     source: { provider: 'github', repository: target, appId: manifest.app.id, installationId: manifest.app.installationId,
       permissions: { contents: 'write' }, requireAppOwner: true, additionalRepositories: [] },

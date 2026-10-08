@@ -381,7 +381,7 @@ Every pipeline runs the same stages: authorize, admit, provision, check out, set
 
 | Port | Chosen by | Adapters today |
 | --- | --- | --- |
-| `ExecutionTarget`: where the agent runs | `environment.provider` | `docker`: a hardened container on the machine that runs the pipeline, created with OpenTofu |
+| `ExecutionTarget`: where the agent runs | `environment.provider` | `docker`: a hardened container created with OpenTofu; experimental `openshell`: a pinned OpenShell 0.1.2 sandbox |
 | `SourceHost`: where the code lives | `source.provider` | `github`: a GitHub App installation on an organization or a user, with repository-scoped tokens, push verification and pull requests |
 | `Intake`: where the task came from | `trigger.kind` | `github-issue`: an issue that names the repository to change, with the accepted issue actions and start limits chosen by the consumer. `custom`: the consumer's own intake, such as a chat message or a command line |
 | `Harness` and `ModelProvider` | `harness.name` | `codex`: Codex with OpenAI's Responses API |
@@ -424,7 +424,7 @@ So we're building the reusable parts once.
 | Works today | What's next |
 | --- | --- |
 | One pipeline API (`createPipeline`): the execution target, code host and harness are chosen in configuration, and the trigger by the consumer | A second adapter for each port |
-| Execution target: hardened Docker containers on the machine that runs the pipeline, such as a GitHub-hosted runner | VMs; AWS, Google Cloud and internal platforms |
+| Execution targets: hardened Docker containers and experimental OpenShell 0.1.2 on Linux, including GitHub-hosted runners | VMs; AWS, Google Cloud and internal platforms |
 | Harness: Codex with OpenAI models, behind a gateway that enforces request, token and spend limits | Claude Code and other harnesses |
 | Code host: GitHub, with short-lived tokens scoped to one repository, push verification and pull requests | Other code hosts |
 | Triggers: GitHub issues, or any intake the consumer supplies | Built-in Jira, Linear and Slack intakes |
@@ -456,6 +456,19 @@ in the organization's other repositories.
 The example includes a worker image recipe, agent configuration and result
 verification. Use it as a starting point, adapt its defaults, or build your own
 application with the runtime's pipeline, permission and telemetry tools.
+
+## Source layout
+
+- `src/pipeline/`: provider-neutral orchestration and contracts.
+- `src/runtime/`: configuration, authorization, admission and budgets.
+- `src/providers/execution/`: Docker and OpenShell targets and shared execution operations.
+- `src/providers/source/github/`: GitHub access and issue intake.
+- `src/providers/harness/codex/`: Codex worker execution.
+- `src/providers/model/openai/`: model gateway and usage accounting.
+- `src/providers/gateway/`: worker-facing request mediation.
+- `src/providers/shared/`: trusted process utilities used across adapters.
+- `test/`: matching runtime, pipeline and provider groups; `npm test` discovers all `*.test.ts` files recursively. Live checks remain in `test/live/`.
+- `example/software-factory/`: the consumer example and its own tests.
 
 ## Contributing
 

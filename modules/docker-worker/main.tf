@@ -24,6 +24,10 @@ variable "configuration_sha256" {
   }
 }
 
+variable "resources_sha256" {
+  type = string
+}
+
 variable "owner" {
   type = string
   validation {
@@ -47,7 +51,7 @@ resource "docker_network" "agent" {
   }
   lifecycle {
     precondition {
-      condition     = sha256(local.canonical) == var.configuration_sha256
+      condition     = sha256(local.canonical) == var.resources_sha256
       error_message = "Canonical configuration integrity check failed."
     }
   }
@@ -78,7 +82,7 @@ resource "docker_container" "agent" {
   memory_swap   = local.runtime.environment.memoryMiB
   security_opts = ["no-new-privileges:true"]
   entrypoint    = ["/bin/sleep"]
-  command       = [tostring(local.runtime.limits.timeoutMinutes * 60)]
+  command       = [tostring(local.runtime.environment.timeoutSeconds)]
   log_driver    = "none"
   tmpfs = {
     "/tmp"       = "rw,noexec,nosuid,nodev,size=64m,uid=10001,gid=10001"

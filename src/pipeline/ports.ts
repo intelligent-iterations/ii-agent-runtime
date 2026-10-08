@@ -1,5 +1,4 @@
 import type { AdmissionResult } from '../runtime/admission.js';
-import type { CompiledConfiguration } from '../runtime/configuration.js';
 
 /**
  * Provider-neutral contracts of an agent pipeline. The configuration chooses where the agent runs
@@ -84,17 +83,32 @@ export interface SourceHost {
 /** The worker's network once isolated: it reaches only `address`, and only after `connect`. */
 export interface Isolation { address: string; connect(port: number): Promise<void>; close(): Promise<void> }
 export interface SetupResult { label: string; exitCode: number; seconds: number; timedOut: boolean }
+/** A bounded command inside the worker. Host paths, environment and provider handles stay in the adapter. */
+export interface WorkerCommand {
+  command: string;
+  args: string[];
+  input?: string | Buffer;
+  timeoutMs: number;
+  maxOutputBytes: number;
+  signal?: AbortSignal;
+}
+export type WorkerCommandRunner = (request: WorkerCommand) => Promise<string>;
 export interface Worker {
-  /** Opaque handle the matching harness understands. */
-  readonly handle: unknown;
+  /** Absolute writable root provided by the target. */
+  readonly workspace: string;
+  /** Runs as the unprivileged workload identity, with input on stdin and bounded output. */
+  run: WorkerCommandRunner;
   /** Copies the checked-out repository into the worker's workspace. */
   load(directory: string): Promise<void>;
-  /** Installs dependencies with internet access. Runs before any credential exists, and leaves the worker detached. */
+  /** Installs dependencies with internet access. Runs before workload credentials are issued, and returns with setup networking sealed. */
   setup(commands: string[], options: { timeoutMs: number; signal: AbortSignal }): Promise<Omit<SetupResult, 'label'>>;
   isolate(): Promise<Isolation>;
 }
 /** Where the agent runs: a hardened local container today; a cloud or remote machine are further adapters. */
-export interface ExecutionTarget { provision(compiled: CompiledConfiguration): Promise<Worker>; close(): Promise<void> }
+export interface WorkerResources { image: string; cpu: number; memoryMiB: number; timeoutSeconds: number; configurationDigest: string }
+/** The caller's Run deadline and cancellation apply to acquisition, not final cleanup. */
+export interface ExecutionContext { deadlineMs: number; signal: AbortSignal }
+export interface ExecutionTarget { provision(resources: WorkerResources, context?: ExecutionContext): Promise<Worker>; close(): Promise<void> }
 
 export interface ModelSession {
   respond(input: unknown): Promise<Response>;

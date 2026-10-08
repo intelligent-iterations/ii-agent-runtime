@@ -97,6 +97,14 @@ export function createHubWorkflow(input: { layout: HubLayout; source: RuntimeSou
           { name: 'Use OpenTofu', uses: pins.tofu, with: { tofu_version: '1.12.6', tofu_wrapper: false } },
           { name: 'Build trusted runtime', 'working-directory': 'factory-runtime',
             run: 'npm ci --ignore-scripts\nnpm run build\nnpm --prefix example/software-factory ci --ignore-scripts\nnpm --prefix example/software-factory run build' },
+          { name: 'Read immutable hub policy', uses: pins.checkout, with: {
+            ref: expression('github.workflow_sha'), path: 'factory-hub', 'persist-credentials': false,
+            'sparse-checkout': layout.policyPath, 'sparse-checkout-cone-mode': false } },
+          { name: 'Select worker provider', id: 'provider', 'working-directory': 'factory-runtime',
+            env: { FACTORY_POLICY_PATH: `../factory-hub/${layout.policyPath}` },
+            run: `node --input-type=module -e 'import {readFileSync,appendFileSync} from "node:fs"; import {readHubPolicy} from "./example/software-factory/dist/hub-policy.js"; const p=readHubPolicy(readFileSync(process.env.FACTORY_POLICY_PATH,"utf8")); appendFileSync(process.env.GITHUB_OUTPUT,"provider="+(p.environment?.provider === "openshell" ? "openshell" : "docker")+"\\n");'` },
+          { name: 'Start pinned OpenShell', if: expression("steps.provider.outputs.provider == 'openshell'"),
+            'working-directory': 'factory-runtime', run: 'bash example/software-factory/scripts/openshell-actions.sh start' },
           { name: 'Verify, reserve and execute', id: 'launch', 'working-directory': 'factory-runtime', env: {
             // The workflow comes from the hub's own trusted commit, so the layout it names is trusted like the rest of it.
             [HUB_LAYOUT_VARIABLE]: layout.name,
@@ -107,6 +115,8 @@ export function createHubWorkflow(input: { layout: HubLayout; source: RuntimeSou
             name: expression('format(\'software-factory-{0}-{1}\', github.run_id, github.run_attempt)'),
             path: expression('steps.launch.outputs.artifact_directory'), 'retention-days': input.retentionDays,
             'if-no-files-found': 'error', 'include-hidden-files': false, 'compression-level': 0 } },
+          { name: 'Stop OpenShell service', if: expression("always() && steps.provider.outputs.provider == 'openshell'"),
+            'working-directory': 'factory-runtime', run: 'bash example/software-factory/scripts/openshell-actions.sh stop' },
           // The launch step replies on the issue itself; this covers setup that failed before it could run.
           { name: 'Reply when setup failed', if: expression("failure() && steps.launch.outcome == 'skipped'"), env: {
             GH_TOKEN: expression('github.token'), FACTORY_ISSUE: expression('github.event.issue.number'),

@@ -142,3 +142,15 @@ test('the default policy names no worker image: each organization passes its own
   assert.equal((defaultPolicy() as any).environment.image, undefined);
   assert.doesNotMatch(JSON.stringify(defaultPolicy()), /intelligent-iterations/);
 });
+
+
+test('one provider value selects OpenShell without changing the remaining runtime policy', () => {
+  const policy = JSON.parse(hubPolicy(samplePolicy()));
+  policy.environment.provider = 'docker';
+  const docker = compileHubPolicy(JSON.stringify(policy), manifest, 'example/sample-project').configuration;
+  policy.environment.provider = 'openshell';
+  const openshell = compileHubPolicy(JSON.stringify(policy), manifest, 'example/sample-project').configuration;
+  assert.deepEqual(openshell, { ...docker, environment: { ...docker.environment, provider: 'openshell' } });
+  policy.environment.provider = 'unknown';
+  assert.throws(() => compileHubPolicy(JSON.stringify(policy), manifest, 'example/sample-project'), /environment.provider/);
+});

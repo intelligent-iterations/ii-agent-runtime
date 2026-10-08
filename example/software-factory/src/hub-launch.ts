@@ -87,7 +87,9 @@ export async function launchFromHub(env: NodeJS.ProcessEnv = process.env, servic
   const pipeline = createPipeline(compiled, {
     trigger: { kind: 'github-issue', api, run: hub, event, current, readRequest: hubRequestReader(manifest.organization), options: settings.trigger },
     consumer: layout.identity,
-    secrets: { codeHostKey, modelKey }, host: { workParent: runnerTemp, executablePath: required(env, 'PATH') }, services,
+    secrets: { codeHostKey, modelKey }, host: { workParent: runnerTemp, executablePath: required(env, 'PATH'),
+      ...(config.environment.provider === 'openshell' && env.FACTORY_WORKER_GATEWAY_ADDRESS
+        ? { openshell: { gatewayAddress: env.FACTORY_WORKER_GATEWAY_ADDRESS } } : {}) }, services,
   });
   const { report, started, failed } = await pipeline.run({
     report: { hub: hub.repository, issue: issueNumber },
