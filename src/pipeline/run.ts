@@ -1,3 +1,4 @@
+import { workerResources } from './worker-resources.js';
 import type { CompiledConfiguration } from '../runtime/configuration.js';
 import { consumerNames, type ConsumerIdentity } from '../runtime/consumer.js';
 import { planSetup } from './setup-plan.js';
@@ -67,7 +68,7 @@ export async function runPipeline(compiled: CompiledConfiguration, ports: Pipeli
     started = true;
     report.phase = 'provisioning';
     cleanup.splice(0, 0, { name: 'provisioner', close: () => ports.target.close() });
-    const worker = await ports.target.provision(compiled);
+    const worker = await ports.target.provision(workerResources(compiled), { deadlineMs: deadline, signal: abort.signal });
     if (abort.signal.aborted) throw Error('Launch deadline expired');
     report.phase = 'checkout';
     const checkout = await ports.source.checkout(base);
@@ -78,13 +79,14 @@ export async function runPipeline(compiled: CompiledConfiguration, ports: Pipeli
     } finally { await checkout.dispose(); }
     let setup: SetupResult | undefined;
     if (plan) {
-      // Internet access, and no credential anywhere in the run yet: setup ends sealed before grants are minted.
+      // Setup receives no workload credential and must end sealed before worker grants are minted.
       report.phase = 'setup';
       const remaining = deadline - Date.now() - 120000;
       if (remaining < 60000) throw Error('Launch deadline expired');
       setup = { label: plan.label, ...await worker.setup(plan.commands, { timeoutMs: Math.min(plan.timeoutMs, remaining), signal: abort.signal }) };
       report.setup = setup;
     }
+    if (abort.signal.aborted || Date.now() >= deadline) throw Error('Launch deadline expired');
     report.phase = 'credentials';
     const grants = await ports.source.workerGrants();
     report.phase = 'network';

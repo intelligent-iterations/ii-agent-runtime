@@ -21,7 +21,7 @@ export interface RuntimeConfiguration {
    * Where the agent runs. Selects the execution target adapter; docker is a hardened container on the machine that runs the pipeline.
    */
   environment: {
-    provider: 'docker';
+    provider: 'docker' | 'openshell';
     image: string;
     cpu: number;
     memoryMiB: number;

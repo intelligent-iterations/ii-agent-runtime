@@ -25,7 +25,7 @@
       "type": "object", "additionalProperties": false,
       "required": ["provider", "image", "cpu", "memoryMiB"],
       "properties": {
-        "provider": { "const": "docker" },
+        "provider": { "enum": ["docker", "openshell"] },
         "image": { "type": "string", "maxLength": 512, "pattern": "^[a-zA-Z0-9][a-zA-Z0-9./:_-]*@sha256:[a-f0-9]{64}$" },
         "cpu": { "type": "integer", "minimum": 1, "maximum": 4 },
         "memoryMiB": { "type": "integer", "minimum": 256, "maximum": 8192 },

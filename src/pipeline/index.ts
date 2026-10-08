@@ -4,4 +4,5 @@ export { createPipeline, type Pipeline, type PipelineOptions, type PipelineServi
 export { runPipeline, type PipelinePorts, type RunOptions } from './run.js';
 export { planSetup, DEFAULT_SETUP_MINUTES, type SetupPlan } from './setup-plan.js';
 export type { ConsumerIdentity } from '../runtime/consumer.js';
-export type { IssueRequestReader, IssueTriggerOptions, SubmitAction } from '../providers/github-issue.js';
+export type { IssueRequestReader, IssueTriggerOptions, SubmitAction } from '../providers/source/github/issue.js';
+export { workerResources } from './worker-resources.js';

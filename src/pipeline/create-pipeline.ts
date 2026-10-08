@@ -1,10 +1,14 @@
+import { openshellTarget, type OpenShellHost } from '../providers/execution/openshell/target.js';
 import type { CompiledConfiguration } from '../runtime/configuration.js';
-import type { GitHubApi } from '../providers/github-http.js';
-import type { ActionsIdentity } from '../providers/github-authorization.js';
-import type { IssueRequestReader, IssueTriggerOptions } from '../providers/github-issue.js';
+import type { GitHubApi } from '../providers/source/github/http.js';
+import type { ActionsIdentity } from '../providers/source/github/authorization.js';
+import type { IssueRequestReader, IssueTriggerOptions } from '../providers/source/github/issue.js';
 import { consumerNames, type ConsumerIdentity } from '../runtime/consumer.js';
-import { githubIssueIntake, githubServices, githubSourceHost, type GitHubServices } from '../providers/github-pipeline.js';
-import { codexHarness, dockerTofuTarget, executionServices, openaiModel, type ExecutionServices } from '../providers/docker-pipeline.js';
+import { githubIssueIntake, githubServices, githubSourceHost, type GitHubServices } from '../providers/source/github/pipeline.js';
+import { dockerTofuTarget } from '../providers/execution/docker/target.js';
+import { codexHarness } from '../providers/harness/codex/adapter.js';
+import { openaiModel } from '../providers/model/openai/adapter.js';
+import { executionServices, type ExecutionServices } from '../providers/services.js';
 import { UnsupportedPipelineTarget, type Intake, type PipelineOutcome } from './ports.js';
 import { runPipeline, type RunOptions } from './run.js';
 
@@ -32,7 +36,7 @@ export interface PipelineOptions {
   /** Held only inside the pipeline and dropped when it finishes: the source host's key and the model provider's key. */
   secrets: { codeHostKey: string; modelKey: string };
   /** Private scratch space on the machine that runs the pipeline, and the PATH its tools are found on. */
-  host: { workParent: string; executablePath: string };
+  host: { workParent: string; executablePath: string; openshell?: OpenShellHost };
   /** Test seams for the adapters' provider calls. */
   services?: Partial<PipelineServices>;
 }
@@ -46,7 +50,7 @@ export interface Pipeline { run(options?: RunOptions): Promise<PipelineOutcome> 
 export function createPipeline(compiled: CompiledConfiguration, options: PipelineOptions): Pipeline {
   const config = compiled.configuration;
   const services: PipelineServices = { ...githubServices, ...executionServices, ...options.services };
-  if (config.environment.provider !== 'docker') throw new UnsupportedPipelineTarget('environment.provider', config.environment.provider);
+  if (!['docker', 'openshell'].includes(config.environment.provider)) throw new UnsupportedPipelineTarget('environment.provider', config.environment.provider);
   if (config.source.provider !== 'github') throw new UnsupportedPipelineTarget('source.provider', config.source.provider);
   if (config.harness.name !== 'codex') throw new UnsupportedPipelineTarget('harness.name', config.harness.name);
   consumerNames(options.consumer);
@@ -64,7 +68,9 @@ export function createPipeline(compiled: CompiledConfiguration, options: Pipelin
         current: trigger.current, source, consumer: options.consumer, readRequest: trigger.readRequest, trigger: trigger.options, services });
       return runPipeline(compiled, {
         intake, source, consumer: options.consumer,
-        target: dockerTofuTarget({ parent: options.host.workParent, executablePath: options.host.executablePath, services }),
+        target: config.environment.provider === 'openshell'
+          ? openshellTarget({ parent: options.host.workParent, executablePath: options.host.executablePath, ...(options.host.openshell ? { host: options.host.openshell } : {}) })
+          : dockerTofuTarget({ parent: options.host.workParent, executablePath: options.host.executablePath, services }),
         harness: codexHarness(compiled, { executablePath: options.host.executablePath, services }),
         model: openaiModel(compiled, { apiKey: () => modelKey, services }),
         gateway: input => services.openWorkerGateway(input),

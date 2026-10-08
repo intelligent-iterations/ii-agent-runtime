@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test test/*.test.ts",
+    "test": "tsx scripts/run-tests.ts",
     "check": "npm run check:types && npm run typecheck && npm run boundaries && npm test",
     "boundaries": "tsx scripts/check-boundaries.ts",
     "prepare": "npm run build",
@@ -44,8 +44,8 @@
       "import": "./dist/pipeline/index.js"
     },
     "./github": {
-      "types": "./dist/providers/github-index.d.ts",
-      "import": "./dist/providers/github-index.js"
+      "types": "./dist/providers/source/github/index.d.ts",
+      "import": "./dist/providers/source/github/index.js"
     }
   },
   "files": [
