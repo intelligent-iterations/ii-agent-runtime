@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { hubLaunchIdentity, launchFromHub } from '../src/hub-launch.js';
-import { type PipelineServices } from '@intelligent-iterations/ii-agent-runtime/pipeline';
+import { type PipelineServices } from '../src/create-pipeline.js';
 import { finishedMessage } from '../src/hub-messages.js';
 import { hubPolicy } from '../src/hub-policy.js';
 import { samplePolicy } from './policy-fixture.js';
@@ -122,8 +122,10 @@ test('hub launch replies on the issue, verifies with a read-only token, reserves
       }, revoke: async () => { calls.push('revoke-reader'); }, verifyInstallation: async () => {},
       close: async () => { calls.push('close-tokens'); if (fault === 'revocation') throw Error('Synthetic revocation failure'); } }),
       isolateWorkerNetwork: async () => ({ address: '127.0.0.1', connect: async () => { calls.push('connect'); }, close: async () => { calls.push('close-network'); } }),
-      openWorkerGateway: async () => ({ endpoint: 'http://127.0.0.1:12345', port: 12345, token: 'f'.repeat(64),
-        snapshot: () => ({ requests: 0, transferredBytes: 0 }), close: async () => { calls.push('close-gateway'); } }),
+      openWorkerGateway: async input => {
+        assert.deepEqual(input.deniedRequests, [{ method: 'POST', path: '/github/example/sample-project/issues' }, { method: 'POST', path: '/github/example/sample-project/issues/' }]);
+        return { endpoint: 'http://127.0.0.1:12345', port: 12345, token: 'f'.repeat(64),
+        snapshot: () => ({ requests: 0, transferredBytes: 0 }), close: async () => { calls.push('close-gateway'); } }; },
       cloneRepository: async input => {
         calls.push(`checkout:${input.base}`);
         assert.equal(input.token, 'synthetic-installation-key', 'the checkout reads with the read-only token');
@@ -152,6 +154,13 @@ test('hub launch replies on the issue, verifies with a read-only token, reserves
     const raw = readFileSync(join(output.slice('artifact_directory='.length), 'run.json'), 'utf8');
     assert.ok(!raw.includes('synthetic-pem') && !raw.includes('synthetic-model-key') && !raw.includes('synthetic-installation-key'));
     const report = JSON.parse(raw);
+    const evidenceDirectory = output.slice('artifact_directory='.length);
+    const runtimeEvidence = readFileSync(join(evidenceDirectory, 'canonical.json'), 'utf8');
+    const applicationEvidence = readFileSync(join(evidenceDirectory, 'application.json'), 'utf8');
+    assert.ok(!('launchPolicy' in JSON.parse(runtimeEvidence)));
+    assert.ok('launchPolicy' in JSON.parse(applicationEvidence));
+    assert.equal(report.runtimeArtifactDigest, digest(runtimeEvidence));
+    assert.equal(report.artifactDigest, digest(applicationEvidence));
     assert.equal(report.repository, 'example/sample-project');
     if (fault === 'not-installed') { assert.equal(report.status, 'denied'); assert.match(comments[0]!, /cannot access `example\/sample-project`/); continue; }
     assert.equal(calls[0], 'mint:example/sample-project:contents=read', 'verification uses a token that cannot write');

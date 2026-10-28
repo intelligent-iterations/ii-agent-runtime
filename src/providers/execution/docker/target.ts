@@ -8,7 +8,7 @@ import type { ExecutionTarget, Worker, WorkerResources } from '../../../pipeline
 import type { ExecutionServices } from '../../services.js';
 
 /**
- * A hardened container on the machine that runs the pipeline (`environment.provider: docker`): OpenTofu creates
+ * A hardened container on the execution host where this adapter is explicitly instantiated: OpenTofu creates
  * it without a network; dependency setup briefly joins it to an internet bridge before any credential exists; isolation
  * then joins it to a private bridge that reaches only the worker gateway.
  */

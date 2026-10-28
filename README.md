@@ -362,33 +362,37 @@ The deployment layer is designed to grow across the places teams actually run an
 | **Google Cloud**                       | Initial cloud target                  |
 | **AWS**                                | Planned provider support              |
 | **Azure**                              | Planned provider support              |
-| **GitHub**                             | Hardened containers on GitHub-hosted runners, scoped App tokens, issue intake and pull requests implemented |
+| **GitHub**                             | Hardened containers on GitHub-hosted runners, scoped App tokens; issue-to-PR workflow lives in the example |
 | **Internal infrastructure**            | Custom adapters                       |
 
 If your company has its own compute platform, sandbox service, runner system or deployment API, `II Agent Runtime` should be something you can extend - not something that forces you to replace it.
 
-### One pipeline, adapters chosen by configuration
+### Infrastructure adapters chosen by configuration
 
-Consumers describe what to run. The configuration decides where it runs and against which code host; the consumer decides how tasks arrive. A consumer launches every agent through one call:
+The runtime deploys and executes agents through infrastructure adapters selected
+by explicit configuration. Callers supply the workload and execution inputs.
 
 ```ts
-import { createPipeline } from '@intelligent-iterations/ii-agent-runtime/pipeline';
+import { createExecutionTarget, workerResources } from '@intelligent-iterations/ii-agent-runtime/pipeline';
 
-const { report } = await createPipeline(compiled, { trigger, consumer, secrets, host }).run({ onEvent, describeChange });
+const target = createExecutionTarget(compiled, { host, executionTarget });
+try {
+  const worker = await target.provision(workerResources(compiled));
+  // Supply files and execute the application-selected workload using the worker.
+} finally {
+  await target.close();
+}
 ```
 
-Every pipeline runs the same stages: authorize, admit, provision, check out, set up, grant, isolate, confirm, execute, verify and deliver. Each stage goes through a port (`src/pipeline/ports.ts`). The stages and the ports name no provider, and a check refuses any import of an adapter into them; the composition root (`src/pipeline/create-pipeline.ts`) is the only place that picks one:
+`environment.hosting` is required. For a VM provider, omit `executionTarget`:
+the runtime uses that provider's IaC and SSH execution adapter. For GitHub, supply
+an explicit target bound to an allocated job; selecting GitHub never dispatches
+a workflow or infers execution on the caller's machine. `host` supplies only
+control-process tools, scratch storage and cloud credentials.
 
-| Port | Chosen by | Adapters today |
-| --- | --- | --- |
-| `ExecutionTarget`: where the agent runs | `environment.provider` | `docker`: a hardened container created with OpenTofu; experimental `openshell`: a pinned OpenShell 0.1.2 sandbox |
-| `SourceHost`: where the code lives | `source.provider` | `github`: a GitHub App installation on an organization or a user, with repository-scoped tokens, push verification and pull requests |
-| `Intake`: where the task came from | `trigger.kind` | `github-issue`: an issue that names the repository to change, with the accepted issue actions and start limits chosen by the consumer. `custom`: the consumer's own intake, such as a chat message or a command line |
-| `Harness` and `ModelProvider` | `harness.name` | `codex`: Codex with OpenAI's Responses API |
-
-Configuration (`schemas/runtime-configuration.json`) holds no secrets and nothing specific to one consumer: keys are passed when the pipeline starts, and each consumer keeps its own settings in its own files. The runtime names none of its consumers either. Each one passes its `consumer` identity, for example `{ name: 'sample-app', displayName: 'Sample App' }`, and every durable name is derived from it: its task branches, its commit author, and the records an adapter keeps, such as the GitHub adapters' workflow path and admission ledger.
-
-A value with no adapter, such as `environment.provider: aws`, is refused with `UnsupportedPipelineTarget`. Nothing falls back to another provider. Today each setting has one adapter; a new one is added behind the same ports, in the composition root, and callers do not change. A consumer that composes its own adapters can call `runPipeline` with its own ports.
+Runtime adapters enforce Docker/OpenShell isolation, resource limits, scoped
+credentials, model budgets and cleanup. The deployment API keeps infrastructure
+plans and operation records. Unknown targets and unsupported overrides fail closed.
 
 ---
 
@@ -423,22 +427,22 @@ So we're building the reusable parts once.
 
 | Works today | What's next |
 | --- | --- |
-| One pipeline API (`createPipeline`): the execution target, code host and harness are chosen in configuration, and the trigger by the consumer | A second adapter for each port |
-| Execution targets: hardened Docker containers and experimental OpenShell 0.1.2 on Linux, including GitHub-hosted runners | VMs; AWS, Google Cloud and internal platforms |
-| Harness: Codex with OpenAI models, behind a gateway that enforces request, token and spend limits | Claude Code and other harnesses |
-| Code host: GitHub, with short-lived tokens scoped to one repository, push verification and pull requests | Other code hosts |
-| Triggers: GitHub issues, or any intake the consumer supplies | Built-in Jira, Linear and Slack intakes |
+| Execution adapters and `createExecutionTarget`; application orchestration lives in the example | A second adapter for each port |
+| Execution targets: Docker/OpenShell isolation on explicitly bound GitHub compute or six configured VM clouds | Additional execution environments |
+| Bounded command execution and an OpenAI gateway enforcing request, token and spend limits; the example supplies its Codex invocation | Other agent integrations |
+| Code host: GitHub, with short-lived tokens scoped to configured repositories | Other code hosts |
+| Application-owned triggers; GitHub issues implemented in the example | Other application integrations |
 | Isolated workers: the network reaches only the gateway, and keys never enter the worker | Custom images per workload |
 | Dependency setup before the agent starts, with no keys present | Setup limited to package registries |
-| Launch checks: who may launch, concurrency and run limits, per-run and monthly budgets reserved before any spend | Return unused reservations; cost reporting |
+| Admission reservations: concurrency and run limits, per-run and monthly budgets reserved before spend | Return unused reservations; cost reporting |
 | Versioned configuration in JSON, YAML or TypeScript, validated and pinned by digest | Saved configuration versions and run history |
 
 The [Software Factory example](example/software-factory/) builds on the runtime: an organization files issues in one private repository, and agents open pull requests in its other repositories.
 
 ### Verification
 
-The runtime passes its 62 tests. The Software Factory example passes its own 49
-tests and a package contract test, reaching the runtime only through its package. On 2026-10-01 the example ran end to end on GitHub: the pipeline checked
+The runtime and independent example have separate test suites and an installed-package
+contract test. The example reaches runtime only through published package exports. On 2026-10-01 the example ran end to end on GitHub: the pipeline checked
 out a test React site, installed its dependencies with `npm ci`, ran Codex in an
 isolated worker that built the site successfully, verified the push and opened
 the pull request. A clean machine and a second organization have not been tested yet.
@@ -455,15 +459,14 @@ in the organization's other repositories.
 
 The example includes a worker image recipe, agent configuration and result
 verification. Use it as a starting point, adapt its defaults, or build your own
-application with the runtime's pipeline, permission and telemetry tools.
+application with the runtime's execution, permission and telemetry tools.
 
 ## Source layout
 
-- `src/pipeline/`: provider-neutral orchestration and contracts.
-- `src/runtime/`: configuration, authorization, admission and budgets.
+- `src/pipeline/`: execution contracts, resource projection and target selection.
+- `src/runtime/`: infrastructure configuration, admission reservations, artifacts and budgets.
 - `src/providers/execution/`: Docker and OpenShell targets and shared execution operations.
-- `src/providers/source/github/`: GitHub access and issue intake.
-- `src/providers/harness/codex/`: Codex worker execution.
+- `src/providers/source/github/`: scoped GitHub credentials and authenticated API transport.
 - `src/providers/model/openai/`: model gateway and usage accounting.
 - `src/providers/gateway/`: worker-facing request mediation.
 - `src/providers/shared/`: trusted process utilities used across adapters.
@@ -482,3 +485,20 @@ Report suspected vulnerabilities privately through [GitHub private vulnerability
 
 Licensed under the [Apache License, Version 2.0](LICENSE).
 Copyright 2026 Intelligent Iterations.
+
+### Agent hosting
+
+Runtime configuration selects the agent host through `environment.hosting`.
+See [configurable agent hosting](modules/remote-host/README.md) for configuration, credentials,
+provider implementation status, and the distinction between emulator checks and
+live-cloud verification.
+
+### Provider emulator acceptance
+
+Cloud deployment acceptance uses only independent upstream emulators and the
+actual pinned provider plugins. Repository-written cloud emulators have been
+removed. All six supported VM providers have independent lifecycle evidence. See
+[coverage and reproduction](test/live/deployment/EMULATORS.md) for exact results,
+commands and limitations. These tests do not prove live-cloud IAM, guest boot or
+complete API equivalence. Local Docker/SSH execution is separate evidence, and
+managed-container API emulation cannot validate a VM adapter.

@@ -31,11 +31,17 @@ export async function openWorkerGateway(options: {
   model: { respond(input: unknown): Promise<Response> };
   signal: AbortSignal;
   fetch?: typeof fetch;
+  /** Exact request paths denied by the caller, in addition to credential scope. */
+  deniedRequests?: ReadonlyArray<{ method: string; path: string }>;
 }) {
   if (!isIPv4(options.address) || options.address === '0.0.0.0') throw Error('Gateway must bind a specific IPv4 interface');
   const grants = new Map(options.grants.map(grant => [grant.repository.toLowerCase(), grant]));
   if (!grants.size || grants.size > 11 || grants.size !== options.grants.length) throw Error('Invalid gateway grants');
   for (const [repository, grant] of grants) if (!/^[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+$/.test(repository) || !grant.token) throw Error('Invalid gateway grant');
+  const deniedRequests = new Set((options.deniedRequests ?? []).map(rule => {
+    if (!/^[A-Z]+$/.test(rule.method) || !/^\/[A-Za-z0-9._/-]+$/.test(rule.path) || rule.path.includes('..') || rule.path.includes('//')) throw Error('Invalid gateway request policy');
+    return `${rule.method} ${rule.path}`;
+  }));
   const token = randomBytes(32).toString('hex');
   const fetcher = options.fetch ?? fetch;
   let requests = 0;
@@ -61,6 +67,7 @@ export async function openWorkerGateway(options: {
         const url = new URL(raw, `http://${host}`);
         if (url.pathname.split('/').some(segment => segment === '.' || segment === '..')) throw Error('Invalid route');
         const method = request.method ?? '';
+        if (deniedRequests.has(`${method} ${url.pathname}`)) throw Error('Request denied by policy');
         let upstream: Response;
         if (url.pathname === '/v1/responses' && method === 'POST' && !url.search) {
           if (request.headers['content-encoding']) throw Error('Encoded model input not supported');
@@ -75,14 +82,15 @@ export async function openWorkerGateway(options: {
           const repository = `${match[2]}/${repositoryName}`.toLowerCase();
           const grant = grants.get(repository);
           const suffix = match[4] ?? '';
+          // Repository identities are case-insensitive at this provider. Apply caller restrictions to that identity too.
+          if (kind === 'github' && deniedRequests.has(`${method} /github/${repository}${suffix}`)) throw Error('Request denied by policy');
           if (!grant || Date.parse(grant.expiresAt) <= Date.now() + 10000) throw Error('Repository access unavailable');
           if (kind === 'git') {
             if (!((method === 'GET' && suffix === '/info/refs' && ['?service=git-upload-pack', '?service=git-receive-pack'].includes(url.search)) ||
               (method === 'POST' && ['/git-upload-pack', '/git-receive-pack'].includes(suffix) && !url.search))) throw Error('Unsupported Git request');
             if ((suffix === '/git-receive-pack' || url.search.includes('git-receive-pack')) && grant.permissions.contents !== 'write') throw Error('Repository is read-only');
           } else {
-            if (!['GET', 'POST', 'PATCH', 'PUT', 'DELETE'].includes(method) || !suffix ||
-              (method === 'POST' && /^\/issues\/?$/.test(suffix))) throw Error('Unsupported repository request');
+            if (!['GET', 'POST', 'PATCH', 'PUT', 'DELETE'].includes(method) || !suffix) throw Error('Unsupported repository request');
           }
           const payload = await body(request, 16777216);
           transferred += payload.length;

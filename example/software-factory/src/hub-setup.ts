@@ -1,10 +1,11 @@
+import { uploadGitHubSecret } from './github-secrets.js';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
-import { getRecord, GitHubError, record, uploadGitHubSecret, type GitHubApi } from '@intelligent-iterations/ii-agent-runtime/github';
+import { getRecord, GitHubError, record, type GitHubApi } from '@intelligent-iterations/ii-agent-runtime/github';
 import type { HubConnection } from './hub-connection.js';
 import { createHubWorkflow, createIssueForm, HUB_FORM_CONFIG_PATH, HUB_FORM_PATH, HUB_MODEL_KEY_SECRET, validateHubManifest, type HubManifest } from './hub-files.js';
 import { compileHubPolicy, DEFAULT_HUB_RUN_LIMIT, hubImageSettings, hubLaunchSettings, hubPolicy } from './hub-policy.js';

@@ -102,13 +102,14 @@ export function createHubWorkflow(input: { layout: HubLayout; source: RuntimeSou
             'sparse-checkout': layout.policyPath, 'sparse-checkout-cone-mode': false } },
           { name: 'Select worker provider', id: 'provider', 'working-directory': 'factory-runtime',
             env: { FACTORY_POLICY_PATH: `../factory-hub/${layout.policyPath}` },
-            run: `node --input-type=module -e 'import {readFileSync,appendFileSync} from "node:fs"; import {readHubPolicy} from "./example/software-factory/dist/hub-policy.js"; const p=readHubPolicy(readFileSync(process.env.FACTORY_POLICY_PATH,"utf8")); appendFileSync(process.env.GITHUB_OUTPUT,"provider="+(p.environment?.provider === "openshell" ? "openshell" : "docker")+"\\n");'` },
+            run: `node --input-type=module -e 'import {readFileSync,appendFileSync} from "node:fs"; import {readHubPolicy} from "./example/software-factory/dist/hub-policy.js"; const p=readHubPolicy(readFileSync(process.env.FACTORY_POLICY_PATH,"utf8")); appendFileSync(process.env.GITHUB_OUTPUT,"provider="+(p.environment.hosting.provider === "github" && p.environment?.provider === "openshell" ? "openshell" : "docker")+"\\n");'` },
           { name: 'Start pinned OpenShell', if: expression("steps.provider.outputs.provider == 'openshell'"),
             'working-directory': 'factory-runtime', run: 'bash example/software-factory/scripts/openshell-actions.sh start' },
           { name: 'Verify, reserve and execute', id: 'launch', 'working-directory': 'factory-runtime', env: {
             // The workflow comes from the hub's own trusted commit, so the layout it names is trusted like the rest of it.
             [HUB_LAYOUT_VARIABLE]: layout.name,
             FACTORY_GITHUB_TOKEN: expression('github.token'), FACTORY_APP_PRIVATE_KEY: expression(`secrets.${layout.appKeySecret}`),
+            FACTORY_CLOUD_ENVIRONMENT: expression('secrets.FACTORY_CLOUD_ENVIRONMENT'),
             FACTORY_CODEX_API_KEY: expression(`secrets.${HUB_MODEL_KEY_SECRET}`), FACTORY_ARTIFACT_PARENT: expression('runner.temp') + `/${HUB_ARTIFACT_FOLDER}` },
             run: 'node example/software-factory/dist/actions-cli.js hub-launch' },
           { name: 'Retain bounded run evidence', if: expression("always() && steps.launch.outputs.artifact_directory != ''"), uses: pins.artifact, with: {

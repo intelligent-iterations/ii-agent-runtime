@@ -22,7 +22,7 @@ test('the hub workflow runs on hub issues, holds no concurrency group, and passe
   assert.deepEqual(job.permissions, { contents: 'read', issues: 'write', actions: 'read', deployments: 'write', packages: 'read' });
   for (const step of job.steps) if (step.run) assert.ok(!step.run.includes('${{'), `step "${step.name}" runs no interpolated expression`);
   const launch = job.steps.find((step: any) => step.id === 'launch');
-  assert.deepEqual(Object.keys(launch.env).sort(), ['FACTORY_APP_PRIVATE_KEY', 'FACTORY_ARTIFACT_PARENT', 'FACTORY_CODEX_API_KEY', 'FACTORY_GITHUB_TOKEN', 'FACTORY_HUB_LAYOUT']);
+  assert.deepEqual(Object.keys(launch.env).sort(), ['FACTORY_APP_PRIVATE_KEY', 'FACTORY_ARTIFACT_PARENT', 'FACTORY_CLOUD_ENVIRONMENT', 'FACTORY_CODEX_API_KEY', 'FACTORY_GITHUB_TOKEN', 'FACTORY_HUB_LAYOUT']);
   assert.deepEqual([launch.env.FACTORY_HUB_LAYOUT, launch.env.FACTORY_APP_PRIVATE_KEY], ['current', '${{ secrets.SOFTWARE_FACTORY_GITHUB_PRIVATE_KEY }}']);
   assert.equal(launch.run, 'node example/software-factory/dist/actions-cli.js hub-launch');
   assert.throws(() => createHubWorkflow({ layout, source: { repository: 'example/runtime', revision: 'a'.repeat(40), readSshKeySecret: 'AGENT_FACTORY_RUNTIME_DEPLOY_KEY' },
@@ -76,7 +76,7 @@ test('the organization policy leaves out what the hub fills in, and compiles for
 
 test('policies written by earlier versions still compile, and an unknown setting is refused rather than ignored', () => {
   // The format of hubs onboarded before the runtime's configuration became provider-neutral.
-  const earlier = { ...JSON.parse(hubPolicy(samplePolicy())), environment: { provider: 'github-actions', runner: 'ubuntu-latest', image: `example/agent@sha256:${'a'.repeat(64)}`, cpu: 2, memoryMiB: 4096 },
+  const earlier = { ...JSON.parse(hubPolicy(samplePolicy())), environment: { hosting: { provider: 'github' }, provider: 'github-actions', runner: 'ubuntu-latest', image: `example/agent@sha256:${'a'.repeat(64)}`, cpu: 2, memoryMiB: 4096 },
     artifacts: { provider: 'github-actions', retentionDays: 7, maxBytes: 1048576 } };
   assert.equal(compileHubPolicy(JSON.stringify(earlier), manifest, 'example/sample-project').configuration.environment.provider, 'docker');
   assert.deepEqual(hubLaunchSettings(JSON.stringify(earlier)), { trigger: { startLimits: { maxRunNumber: 10000, maxAttempts: 1 } }, evidence: { retentionDays: 7, maxBytes: 1048576 } });
@@ -153,4 +153,25 @@ test('one provider value selects OpenShell without changing the remaining runtim
   assert.deepEqual(openshell, { ...docker, environment: { ...docker.environment, provider: 'openshell' } });
   policy.environment.provider = 'unknown';
   assert.throws(() => compileHubPolicy(JSON.stringify(policy), manifest, 'example/sample-project'), /environment.provider/);
+});
+
+test('hosting changes preserve the factory task, permissions and agent configuration', () => {
+  const policy = JSON.parse(hubPolicy(samplePolicy()));
+  policy.environment.hosting = { provider: 'github' };
+  const local = compileHubPolicy(JSON.stringify(policy), manifest, 'example/sample-project').configuration;
+  const hosting = { provider: 'aws', executorImage: 'example/executor@sha256:' + 'a'.repeat(64),
+    infrastructure: { ami: 'ami-example', instance_type: 't3.medium', subnet_id: 'subnet-example', vpc_security_group_ids: ['sg-example'], key_name: 'operator' },
+    providerConfiguration: { region: 'us-east-1' }, ssh: { user: 'operator', identityFile: '/private/key', knownHostsFile: '/private/hosts' } };
+  policy.environment.hosting = hosting;
+  const cloud = compileHubPolicy(JSON.stringify(policy), manifest, 'example/sample-project').configuration;
+  assert.deepEqual(cloud, { ...local, environment: { ...local.environment, hosting } });
+  assert.equal(cloud.environment.provider, 'docker');
+});
+
+test('the factory explicitly authors GitHub hosting and refuses policies with no deployment target', () => {
+  const policy = JSON.parse(hubPolicy(samplePolicy()));
+  assert.deepEqual(policy.environment.hosting, { provider: 'github' });
+  assert.deepEqual(compileHubPolicy(JSON.stringify(policy), manifest, 'example/sample-project').configuration.environment.hosting, { provider: 'github' });
+  delete policy.environment.hosting;
+  assert.throws(() => compileHubPolicy(JSON.stringify(policy), manifest, 'example/sample-project'), /environment.hosting must explicitly select/);
 });

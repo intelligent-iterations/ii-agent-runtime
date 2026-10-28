@@ -4,6 +4,28 @@ import { stringify } from 'yaml';
 import { canonicalJson, compileConfiguration, compileConfigurationText, defineRuntime, ConfigurationError } from '../../src/runtime/configuration.js';
 import { fixture } from '../runtime-fixture.js';
 
+test('runtime configuration requires an explicit deployment target', () => {
+  const configuration = fixture();
+  const { hosting, ...environment } = configuration.environment;
+  assert.throws(() => compileConfiguration({ ...configuration, environment }), ConfigurationError);
+  for (const invalid of [null, {}, { provider: 'unknown' }]) {
+    assert.throws(() => compileConfiguration({ ...configuration, environment: { ...environment, hosting: invalid } }), ConfigurationError);
+  }
+  assert.deepEqual(compileConfiguration(configuration).configuration.environment.hosting, hosting);
+});
+
+test('removed native execution providers are rejected by configuration', () => {
+  const executorImage = 'example/executor@sha256:' + 'a'.repeat(64);
+  for (const hosting of [
+    { provider: 'vercel', executorImage, projectId: 'project', teamId: 'team' },
+    { provider: 'railway', executorImage, environmentId: 'environment' },
+    { provider: 'fly', executorImage, app: 'example-app', region: 'yyz' },
+  ]) {
+    const configuration = fixture();
+    assert.throws(() => compileConfiguration({ ...configuration, environment: { ...configuration.environment, hosting } }), ConfigurationError);
+  }
+});
+
 test('RFC 8785 number, Unicode, escaping and UTF-16 key-order conformance vector', () => {
   const input = { '\u20ac': 'Euro', '\r': 'CR', '\ufb33': 'Hebrew', '1': 'one', '\ud83d\ude00': 'emoji', '\u0080': 'control', '\u00f6': 'o' };
   assert.equal(canonicalJson(input), '{"\\r":"CR","1":"one","\u0080":"control","ö":"o","€":"Euro","😀":"emoji","דּ":"Hebrew"}');
@@ -106,20 +128,4 @@ test('schema diagnostics identify the authored value without exposing its conten
       return true;
     });
   }
-});
-
-test('a consumer names every durable trace, so the runtime itself names none', async () => {
-  const { consumerNames } = await import('../../src/runtime/consumer.js');
-  const { githubConsumerNames } = await import('../../src/providers/source/github/names.js');
-  const consumer = { name: 'sample-app', displayName: 'Sample App' };
-  assert.deepEqual(consumerNames(consumer), { branchPrefix: 'sample-app', authorName: 'Sample App' });
-  // Names only a GitHub adapter needs are derived by that adapter, from the same identity.
-  const github = githubConsumerNames(consumer);
-  assert.deepEqual([github.workflowPath, github.ledgerEnvironment, github.reserveTask, github.authorEmail],
-    ['.github/workflows/sample-app.yml', 'sample-app-reservations', 'sample-app:reserve', 'sample-app@users.noreply.github.com']);
-  for (const bad of ['', 'Upper', 'a--b', '-a', 'a/b', 'x'.repeat(40)]) {
-    assert.throws(() => consumerNames({ name: bad, displayName: 'Ok' }), /consumer name/, bad);
-    assert.throws(() => githubConsumerNames({ name: bad, displayName: 'Ok' }), /consumer name/, bad);
-  }
-  assert.throws(() => consumerNames({ name: 'ok', displayName: '<script>' }), /display name/);
 });

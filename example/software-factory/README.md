@@ -66,3 +66,17 @@ repository, workflow, folder and secret names.
 - Install the pinned Codex CLI at run time on the official Node image, so no one has to build an image.
 - Limit the setup step's network to package registries.
 - Per-repository worker images (for example mobile or browser toolchains).
+
+### Agent hosting
+
+The existing factory policy selects the agent host through `environment.hosting`.
+New example policies explicitly select `{ "provider": "github" }`. Existing
+policies must add that selection, or a supported cloud configuration. The runtime
+rejects a missing deployment target; it does not choose GitHub for the factory.
+For GitHub execution, the example verifies its Actions job identity and explicitly
+binds that job's Docker or OpenShell target to the runtime. The runtime does not
+infer the agent's location from the process invoking it.
+See [configurable agent hosting](../../modules/remote-host/README.md) for configuration, credentials,
+provider implementation status, and the distinction between emulator checks and
+live-cloud verification. Hosting does not introduce a webhook service or change
+the factory's issue workflow.

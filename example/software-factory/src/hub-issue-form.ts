@@ -1,4 +1,4 @@
-import type { IssueRequestReader } from '@intelligent-iterations/ii-agent-runtime/pipeline';
+import type { IssueRequestReader } from './github-issue.js';
 
 /**
  * Reads the target from the hub's issue form. The body must have the form's exact layout: it starts with the one

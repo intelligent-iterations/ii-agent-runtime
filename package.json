@@ -1,10 +1,10 @@
 {
   "name": "@intelligent-iterations/ii-agent-runtime",
   "version": "0.1.0",
-  "description": "Agent runtime: provider-neutral pipelines that run coding agents in isolated workers, with targets chosen by configuration",
+  "description": "Agent infrastructure: explicit cloud deployment, isolated execution, permissions and deployment records",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "tsx scripts/run-tests.ts",
     "check": "npm run check:types && npm run typecheck && npm run boundaries && npm test",
@@ -17,8 +17,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "ajv": "8.20.0",
-    "yaml": "2.9.1",
-    "libsodium-wrappers": "0.8.4"
+    "yaml": "2.9.1"
   },
   "devDependencies": {
     "@types/node": "22.20.4",
@@ -46,6 +45,10 @@
     "./github": {
       "types": "./dist/providers/source/github/index.d.ts",
       "import": "./dist/providers/source/github/index.js"
+    },
+    "./deployment": {
+      "types": "./dist/deployment/index.d.ts",
+      "import": "./dist/deployment/index.js"
     }
   },
   "files": [
@@ -57,5 +60,8 @@
   ],
   "engines": {
     "node": ">=22.16"
+  },
+  "bin": {
+    "ii-agent-runtime": "dist/deployment/cli.js"
   }
 }

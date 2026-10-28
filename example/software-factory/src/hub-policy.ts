@@ -1,5 +1,5 @@
-import { compileConfiguration, type CompiledConfiguration } from '@intelligent-iterations/ii-agent-runtime/runtime';
-import type { IssueTriggerOptions } from '@intelligent-iterations/ii-agent-runtime/pipeline';
+import { compileConfiguration, type CompiledConfiguration } from './configuration.js';
+import type { IssueTriggerOptions } from './github-issue.js';
 import type { HubManifest } from './hub-files.js';
 import { HUB_JOB_OVERHEAD_MINUTES } from './identity.js';
 
@@ -27,7 +27,7 @@ export const FACTORY_AGENT_NOTE = 'Software Factory opens the pull request for y
 const SETTINGS: Record<string, string[] | null> = {
   schemaVersion: null, id: null, revision: null, instructions: null, launchPolicy: null,
   harness: ['name', 'version', 'model', 'apiKeySecret'],
-  environment: ['provider', 'runner', 'image', 'cpu', 'memoryMiB', 'setup'],
+  environment: ['provider', 'runner', 'image', 'cpu', 'memoryMiB', 'setup', 'hosting'],
   github: ['additionalRepositories'],
   limits: ['enabled', 'maxConcurrent', 'maxRunsPerIssue', 'maxRunsPerMonth', 'maxWorkflowRunNumber', 'maxWorkflowAttempts', 'timeoutMinutes',
     'maxModelRequests', 'maxInputTokensPerRequest', 'maxOutputTokensPerRequest', 'maxModelCostMicrousdPerRun', 'maxCostMicrousdPerMonth',
@@ -47,6 +47,7 @@ export function readHubPolicy(policy: string): Record<string, any> {
     if (allowed && (typeof data[key] !== 'object' || data[key] === null || Array.isArray(data[key]))) throw Error(`Hub policy setting ${key} must be an object`);
     for (const inner of allowed ? Object.keys(data[key]) : []) if (!allowed?.includes(inner)) throw Error(`Unknown hub policy setting: ${key}.${inner}`);
   }
+  if (data.environment?.hosting === undefined) throw Error('environment.hosting must explicitly select a deployment target');
   // Older policies name where the hub runs; it always runs on its GitHub-hosted runner, so only that is accepted.
   if (data.environment?.provider !== undefined && !['github-actions', 'docker', 'openshell'].includes(data.environment.provider)) throw Error('environment.provider must be docker, openshell, or legacy github-actions (or omitted)');
   if (data.environment?.runner !== undefined && data.environment.runner !== 'ubuntu-latest') throw Error('environment.runner must be ubuntu-latest (or omitted)');
@@ -105,15 +106,15 @@ export function compileHubPolicy(policy: string, manifest: HubManifest, target: 
   }
   if ((data.github?.additionalRepositories ?? []).length) throw Error('A hub policy cannot grant additional repositories');
   const { name, version, model } = data.harness ?? {};
-  const { image, cpu, memoryMiB, setup } = data.environment ?? {};
+  const { image, cpu, memoryMiB, setup, hosting } = data.environment ?? {};
   const limits = data.limits ?? {};
   // A missing setting is left out, not set to undefined, so the runtime names it as missing.
   return compileConfiguration(JSON.parse(JSON.stringify({
     schemaVersion: 2, id: data.id, revision: data.revision,
     instructions: typeof data.instructions === 'string' ? `${data.instructions}\n\n${FACTORY_AGENT_NOTE}` : data.instructions,
     harness: { name, version, model },
-    // The hub job runs the agent in a container on its own runner.
-    environment: { provider: data.environment?.provider === 'openshell' ? 'openshell' : 'docker', image, cpu, memoryMiB, ...(setup === undefined ? {} : { setup }) },
+    // Hosting selects where the runtime creates the container; issue handling stays in this application.
+    environment: { provider: data.environment?.provider === 'openshell' ? 'openshell' : 'docker', image, cpu, memoryMiB, hosting, ...(setup === undefined ? {} : { setup }) },
     // The agent may push its task branch; the hub opens the pull request and replies with its own tokens.
     source: { provider: 'github', repository: target, appId: manifest.app.id, installationId: manifest.app.installationId,
       permissions: { contents: 'write' }, requireAppOwner: true, additionalRepositories: [] },

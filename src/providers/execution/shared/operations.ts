@@ -9,7 +9,7 @@ export class TargetOperations {
   private context: ExecutionContext | undefined;
   private deadline = 0;
 
-  constructor(private readonly process: ProcessRunner) {}
+  constructor(private readonly process: ProcessRunner, private readonly cleanupTimeoutMs = 60000) {}
 
   start(timeoutSeconds: number, context?: ExecutionContext): void {
     if (this.deadline || this.stop.signal.aborted) throw Error('Target operation scope already used');
@@ -37,7 +37,7 @@ export class TargetOperations {
 
   beginCleanup(): number {
     // One fixed allowance for all cleanup calls, not a fresh timeout for each poll.
-    return this.cleanupDeadline ??= Date.now() + 60000;
+    return this.cleanupDeadline ??= Date.now() + this.cleanupTimeoutMs;
   }
 
   async cancel(): Promise<void> {

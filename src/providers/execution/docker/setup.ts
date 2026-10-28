@@ -21,7 +21,7 @@ function tools(worker: ProvisionedWorker, options: { process?: ProcessRunner; ex
     ...(extra.input ? { input: extra.input } : {}), ...(extra.signal ? { signal: extra.signal } : {}) });
 }
 
-/** Copies a checked-out repository into the worker's tmpfs workspace as the worker user. The worker never sees a credential. */
+/** Copies a supplied directory into the worker's tmpfs workspace as the worker user. The worker never sees a credential. */
 export async function loadWorkerSource(worker: ProvisionedWorker, directory: string, options: { process?: ProcessRunner; executablePath?: string } = {}): Promise<void> {
   verifyOwnership(worker);
   const run = tools(worker, options);

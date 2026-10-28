@@ -1,4 +1,5 @@
-import { appJwt, getRecord, GitHubError, positiveId, record, uploadGitHubSecret, type GitHubApi } from '@intelligent-iterations/ii-agent-runtime/github';
+import { uploadGitHubSecret } from './github-secrets.js';
+import { appJwt, getRecord, GitHubError, positiveId, record, type GitHubApi } from '@intelligent-iterations/ii-agent-runtime/github';
 import type { BrowserSession } from './onboarding-browser.js';
 import type { FactoryConnection } from './connection-store.js';
 import { reached, type HubConnection, type HubRecords } from './hub-connection.js';
