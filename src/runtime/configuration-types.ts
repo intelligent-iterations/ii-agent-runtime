@@ -1,7 +1,6 @@
 /* Generated from schemas/runtime-configuration.json. */
 
 export type Repository = string;
-export type Permission = 'read' | 'triage' | 'write' | 'maintain' | 'admin';
 export type Cost = number;
 
 export interface RuntimeConfiguration {
@@ -18,15 +17,34 @@ export interface RuntimeConfiguration {
     model: string;
   };
   /**
-   * Where the agent runs. Selects the execution target adapter; docker is a hardened container on the machine that runs the pipeline.
+   * Container isolation and the required, explicitly selected deployment target.
    */
   environment: {
     provider: 'docker' | 'openshell';
+    /**
+     * Required deployment target. The caller explicitly selects GitHub workflow compute or a supported VM cloud provider.
+     */
+    hosting:
+      | {
+          provider: 'github';
+        }
+      | {
+          provider: 'aws' | 'azure' | 'gcp' | 'oci' | 'digitalocean' | 'hetzner';
+          infrastructure: {};
+          providerConfiguration: {};
+          executorImage: string;
+          ssh: {
+            user: string;
+            identityFile: string;
+            knownHostsFile: string;
+            port?: number;
+          };
+        };
     image: string;
     cpu: number;
     memoryMiB: number;
     /**
-     * Dependency installation before the agent starts, with internet access and no credentials in the worker. Defaults to enabled, detected from the repository's lockfiles.
+     * Setup execution settings before agent credentials are available. The caller selects the commands to execute.
      */
     setup?: {
       enabled: boolean;
@@ -39,7 +57,7 @@ export interface RuntimeConfiguration {
     };
   };
   /**
-   * Where the code lives. Selects the source host adapter; github is a GitHub App installation that issues short-lived, repository-scoped tokens. permissions is what the agent's token may do in the repository; it defaults to contents: write, enough to push a task branch.
+   * Where the code lives. Selects the source host adapter; github is a GitHub App installation that issues short-lived, repository-scoped tokens. permissions is what the agent's token may do in the repository; it defaults to contents: write, for repository writes.
    */
   source: {
     provider: 'github';
@@ -59,25 +77,11 @@ export interface RuntimeConfiguration {
       permissions: RepositoryPermissions;
     }[];
   };
-  launchPolicy:
-    | {
-        mode: 'authorized-author';
-        minimumPermission: Permission;
-      }
-    | {
-        mode: 'maintainer-approval';
-        minimumPermission: Permission;
-        label: string;
-      }
-    | {
-        mode: 'any-author';
-        allowPublicContributors: true;
-      };
   limits: {
     enabled: boolean;
     maxConcurrent: number;
     /**
-     * Runs one task subject (for example one issue) may start.
+     * Maximum runs per caller-supplied subject identifier.
      */
     maxRunsPerSubject: number;
     maxRunsPerMonth: number;

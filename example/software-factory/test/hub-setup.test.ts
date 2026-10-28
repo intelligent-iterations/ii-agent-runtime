@@ -6,8 +6,8 @@ import { commitHubFiles } from '../src/hub-setup.js';
 import { createProgress } from '../src/progress.js';
 import { checkModelKey, ModelKeyError } from '../src/model-key.js';
 import { explainRefusal, finishedMessage } from '../src/hub-messages.js';
-import { compileConfiguration } from '@intelligent-iterations/ii-agent-runtime/runtime';
-import { fixture } from './runtime-fixture.js';
+import { compileConfiguration } from '../src/configuration.js';
+import { fixture } from './pipeline-fixture.js';
 import { LEGACY_LAYOUT } from '../src/identity.js';
 
 test('the hub configuration is one commit of only the changed files, and no commit when nothing changed', async () => {

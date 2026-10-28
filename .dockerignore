@@ -1,0 +1,9 @@
+.git
+**/node_modules
+**/dist
+**/.terraform
+**/*.tfstate*
+**/*.tfplan
+**/.env*
+**/secrets*.json
+**/secrets*.env

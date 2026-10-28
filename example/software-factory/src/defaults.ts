@@ -10,7 +10,7 @@ export function defaultPolicy(): Record<string, unknown> {
     schemaVersion: 1, id: 'issue-agent', revision: '1',
     instructions: 'Implement the GitHub issue below in this repository. Keep the change focused, run the project\'s tests, then commit and push the task branch.',
     harness: { name: 'codex', version: '0.159.2', model: 'gpt-6-astra' },
-    environment: { cpu: 2, memoryMiB: 4096 },
+    environment: { hosting: { provider: 'github' }, cpu: 2, memoryMiB: 4096 },
     github: { additionalRepositories: [] },
     launchPolicy: { mode: 'authorized-author', minimumPermission: 'write' },
     limits: { enabled: true, maxConcurrent: 1, maxRunsPerIssue: 1, maxRunsPerMonth: 20, maxWorkflowRunNumber: 100, maxWorkflowAttempts: 1,

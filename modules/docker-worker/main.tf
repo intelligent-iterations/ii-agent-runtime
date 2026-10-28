@@ -59,7 +59,9 @@ resource "docker_network" "agent" {
 
 resource "docker_image" "agent" {
   name         = local.runtime.environment.image
-  keep_locally = false
+  # Image layers are shared host cache; another worker may still be using them.
+  # The execution host's own lifecycle owns disposal of that cache.
+  keep_locally = true
   lifecycle {
     precondition {
       condition     = can(regex("@sha256:[a-f0-9]{64}$", local.runtime.environment.image))

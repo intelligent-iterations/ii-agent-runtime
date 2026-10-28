@@ -2,11 +2,12 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { openWorkerGateway } from '../../../src/providers/gateway/worker.js';
 
-test('real gateway routes distinct repository credentials and denies unconfigured repositories, read-only pushes and issue creation', async t => {
+test('real gateway routes distinct repository credentials and denies unconfigured repositories, read-only pushes and caller-denied requests', async t => {
   const calls: Array<{ url: string; credential: string }> = [];
   const gateway = await openWorkerGateway({ address: '127.0.0.1', signal: new AbortController().signal,
     grants: ['target', 'library'].map((name, index) => ({ repository: `sample/${name}`, repositoryId: index + 1,
       token: `synthetic-${name}-credential`, expiresAt: new Date(Date.now() + 60000).toISOString(), permissions: { contents: index === 0 ? 'write' : 'read' } })),
+    deniedRequests: [{ method: 'POST', path: '/github/sample/target/custom-operation' }],
     model: { respond: async () => new Response('synthetic model stream') },
     fetch: async (url, request) => {
       calls.push({ url: String(url), credential: (request?.headers as Record<string, string>).authorization! });
@@ -26,8 +27,13 @@ test('real gateway routes distinct repository credentials and denies unconfigure
     '/git/sample/library.git/info/refs?service=git-receive-pack', '/github/sample/unconfigured/contents']) {
     assert.equal((await fetch(gateway.endpoint + path, { headers })).status, 502);
   }
-  assert.equal((await fetch(`${gateway.endpoint}/github/sample/target/issues`, { method: 'POST', headers, body: '{}' })).status, 502);
+  assert.equal((await fetch(`${gateway.endpoint}/github/sample/target/custom-operation`, { method: 'POST', headers, body: '{}' })).status, 502);
   assert.equal(calls.length, 2);
+  assert.equal((await fetch(`${gateway.endpoint}/github/sample/target/custom-operation?view=all`, { method: 'POST', headers, body: '{}' })).status, 502);
+  assert.equal((await fetch(`${gateway.endpoint}/github/SAMPLE/TARGET/custom-operation`, { method: 'POST', headers, body: '{}' })).status, 502);
+  assert.equal(calls.length, 2, 'query parameters cannot bypass a denied path');
+  assert.equal((await fetch(`${gateway.endpoint}/github/sample/target/custom-operation`, { headers })).status, 200);
+  assert.equal(calls.length, 3, 'the caller rule applies only to its specified method');
   const response = await fetch(`${gateway.endpoint}/v1/responses`, { method: 'POST', headers, body: '{}' });
   assert.equal(await response.text(), 'synthetic model stream');
   assert.ok(!JSON.stringify(gateway.snapshot()).includes('credential'));

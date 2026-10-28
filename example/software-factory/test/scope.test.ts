@@ -4,12 +4,10 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { APP_PERMISSIONS } from '../src/onboarding-browser.js';
 
-test('the Factory launches agents only through the runtime pipeline and imports only the runtime package', () => {
+test('the Factory composes runtime adapters through the published package', () => {
   const directory = join(import.meta.dirname, '../src');
-  const adapters = /\b(?:openTofuWorker|isolateWorkerNetwork|openWorkerGateway|codexModelGateway|executeCodexWorker|createInstallationIssuer|authorizeIssueTask|authorizeGitHubIssue|githubOrderedAdmissionStore|githubAdmissionStore|reserveInvocation(?:Ordered)?)\b/;
   for (const name of readdirSync(directory).filter(file => file.endsWith('.ts'))) {
     const source = readFileSync(join(directory, name), 'utf8');
-    assert.doesNotMatch(source, adapters, `${name} must use createPipeline`);
     // The runtime is a dependency: reached through its published package, never its source tree.
     assert.doesNotMatch(source, /from ['"](?:\.\.\/){2,}(?:src|test)\//, `${name} imports runtime internals`);
   }

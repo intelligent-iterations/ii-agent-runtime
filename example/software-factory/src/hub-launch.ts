@@ -1,8 +1,11 @@
+import { createPipeline, type PipelineServices } from './create-pipeline.js';
+import type { ActionsIdentity } from './github-authorization.js';
+import { cloudEnvironment } from './cloud-environment.js';
 import { constants, closeSync, fstatSync, mkdirSync, openSync, readFileSync, realpathSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { createGitHubApi, getRecord, record, type ActionsIdentity, type GitHubApi } from '@intelligent-iterations/ii-agent-runtime/github';
+import { createGitHubApi, getRecord, record, type GitHubApi } from '@intelligent-iterations/ii-agent-runtime/github';
 import { saveConfigurationArtifact } from '@intelligent-iterations/ii-agent-runtime/runtime';
-import { createPipeline, type PipelineServices } from '@intelligent-iterations/ii-agent-runtime/pipeline';
+import { dockerTofuTarget, openshellTarget, executionServices } from '@intelligent-iterations/ii-agent-runtime/pipeline';
 import { HUB_ARTIFACT_FOLDER, HUB_LAYOUT_VARIABLE, validateHubManifest } from './hub-files.js';
 import { compileHubPolicy, hubLaunchSettings } from './hub-policy.js';
 import { checkFailedMessage, explainRefusal, finishedMessage, missingBaseMessage, missingTargetMessage, notInstalledMessage } from './hub-messages.js';
@@ -78,18 +81,26 @@ export async function launchFromHub(env: NodeJS.ProcessEnv = process.env, servic
   const head = await getRecord(api, `/repos/${hub.repository}/commits/${encodeURIComponent(manifest.hub.branch)}`);
   if (!/^[a-f0-9]{40}$/.test(String(head.sha))) throw Error('Invalid hub revision');
   const current = compileHubPolicy(await hubFile(api, hub.repository, layout.policyPath, String(head.sha)), manifest, target);
-  if (settings.evidence.maxBytes < Buffer.byteLength(compiled.canonical) + 32768) throw Error('Artifact budget must include 32 KiB for run evidence');
+  if (settings.evidence.maxBytes < Buffer.byteLength(compiled.canonical) + Buffer.byteLength(compiled.runtime.canonical) + 32768) throw Error('Artifact budget must include 32 KiB for run evidence');
   const parent = resolve(required(env, 'FACTORY_ARTIFACT_PARENT'));
   const runnerTemp = realpathSync(required(env, 'RUNNER_TEMP'));
   if (parent !== join(runnerTemp, HUB_ARTIFACT_FOLDER)) throw Error('Invalid artifact parent');
   mkdirSync(parent, { mode: 0o700 });
-  const artifact = saveConfigurationArtifact(parent, config);
+  const artifact = saveConfigurationArtifact(parent, compiled.runtime.configuration);
+  writeFileSync(join(artifact, 'application.json'), compiled.canonical, { flag: 'wx', mode: 0o600 });
+  // hubLaunchIdentity already verified this allocated GitHub Actions job. Bind it explicitly;
+  // selecting GitHub in runtime configuration alone never means "use the caller's machine".
+  const executionTarget = config.environment.hosting.provider === 'github'
+    ? config.environment.provider === 'openshell'
+      ? openshellTarget({ parent: runnerTemp, executablePath: required(env, 'PATH'),
+        ...(env.FACTORY_WORKER_GATEWAY_ADDRESS ? { host: { gatewayAddress: env.FACTORY_WORKER_GATEWAY_ADDRESS } } : {}) })
+      : dockerTofuTarget({ parent: runnerTemp, executablePath: required(env, 'PATH'), services: { ...executionServices, ...services } })
+    : undefined;
   const pipeline = createPipeline(compiled, {
     trigger: { kind: 'github-issue', api, run: hub, event, current, readRequest: hubRequestReader(manifest.organization), options: settings.trigger },
     consumer: layout.identity,
     secrets: { codeHostKey, modelKey }, host: { workParent: runnerTemp, executablePath: required(env, 'PATH'),
-      ...(config.environment.provider === 'openshell' && env.FACTORY_WORKER_GATEWAY_ADDRESS
-        ? { openshell: { gatewayAddress: env.FACTORY_WORKER_GATEWAY_ADDRESS } } : {}) }, services,
+      cloudEnvironment: cloudEnvironment(env) }, ...(executionTarget ? { executionTarget } : {}), services,
   });
   const { report, started, failed } = await pipeline.run({
     report: { hub: hub.repository, issue: issueNumber },

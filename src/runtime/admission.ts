@@ -66,7 +66,7 @@ function evaluate(history: Reservation[], reservation: Reservation, limits: Admi
     if (identities.has(identity)) throw Error('Duplicate reservation history');
     identities.add(identity);
   }
-  // An identical task cannot be replayed, including a different attempt or a repeated event delivery.
+  // A reservation cannot be replayed with the same run or subject/input identity.
   if (history.some(previous => previous.runId === reservation.runId ||
     (previous.subjectId === reservation.subjectId && previous.inputDigest === reservation.inputDigest))) return 'duplicate';
   if (history.filter(previous => previous.subjectId === reservation.subjectId).length >= limits.maxRunsPerSubject) return 'subject-limit';

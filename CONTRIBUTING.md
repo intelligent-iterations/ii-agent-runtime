@@ -1,6 +1,6 @@
 # Contributing
 
-Keep runtime and pipeline code in `src/` and factory behavior in
+Keep infrastructure and execution adapters in `src/` and application orchestration in
 `example/software-factory/`. Runtime must not import the example.
 
 Run these checks before submitting a change:

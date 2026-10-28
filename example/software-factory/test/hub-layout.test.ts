@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpath
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parse } from 'yaml';
-import { githubConsumerNames } from '@intelligent-iterations/ii-agent-runtime/github';
+import { githubConsumerNames } from '../src/github-names.js';
 import { CURRENT_LAYOUT, hubLayout, LEGACY_LAYOUT } from '../src/identity.js';
 import { validateHubManifest } from '../src/hub-files.js';
 import { planHub } from '../src/hub-setup.js';

@@ -1,3 +1,4 @@
-// The runtime's front door: describe the work and its limits (runtime), then run it wherever the configuration says (pipeline).
+// Infrastructure, permission policies and execution adapters. Applications own their workflows.
 export * from './pipeline/index.js';
 export * from './runtime/index.js';
+export * from './deployment/index.js';

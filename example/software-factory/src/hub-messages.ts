@@ -1,4 +1,4 @@
-import type { CompiledConfiguration } from '@intelligent-iterations/ii-agent-runtime/runtime';
+import type { CompiledConfiguration } from './configuration.js';
 import { CURRENT_LAYOUT, PRODUCT_NAME } from './identity.js';
 
 /** What the hub says on an issue. Every refusal names what to do next; `policyPath` is the hub's policy file. */

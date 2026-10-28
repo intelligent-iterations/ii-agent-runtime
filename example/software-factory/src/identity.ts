@@ -1,5 +1,5 @@
-import type { ConsumerIdentity } from '@intelligent-iterations/ii-agent-runtime/runtime';
-import { githubConsumerNames } from '@intelligent-iterations/ii-agent-runtime/github';
+import type { ConsumerIdentity } from './consumer.js';
+import { githubConsumerNames } from './github-names.js';
 
 /** The product name people read: in replies, pull requests, the hub workflow's name and the commit author. */
 export const PRODUCT_NAME = 'Software Factory';

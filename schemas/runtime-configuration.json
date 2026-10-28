@@ -4,7 +4,7 @@
   "title": "RuntimeConfiguration",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "id", "revision", "instructions", "harness", "environment", "source", "launchPolicy", "limits"],
+  "required": ["schemaVersion", "id", "revision", "instructions", "harness", "environment", "source", "limits"],
   "properties": {
     "schemaVersion": { "const": 2 },
     "id": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,99}$" },
@@ -21,16 +21,94 @@
       }
     },
     "environment": {
-      "description": "Where the agent runs. Selects the execution target adapter; docker is a hardened container on the machine that runs the pipeline.",
+      "description": "Container isolation and the required, explicitly selected deployment target.",
       "type": "object", "additionalProperties": false,
-      "required": ["provider", "image", "cpu", "memoryMiB"],
+      "required": ["provider", "hosting", "image", "cpu", "memoryMiB"],
       "properties": {
         "provider": { "enum": ["docker", "openshell"] },
+        "hosting": {
+          "description": "Required deployment target. The caller explicitly selects GitHub workflow compute or a supported VM cloud provider.",
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "provider"
+              ],
+              "properties": {
+                "provider": {
+                  "const": "github"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "provider",
+                "infrastructure",
+                "providerConfiguration",
+                "executorImage",
+                "ssh"
+              ],
+              "properties": {
+                "provider": {
+                  "enum": [
+                    "aws",
+                    "azure",
+                    "gcp",
+                    "oci",
+                    "digitalocean",
+                    "hetzner"
+                  ]
+                },
+                "infrastructure": {
+                  "type": "object"
+                },
+                "providerConfiguration": {
+                  "type": "object"
+                },
+                "executorImage": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9][a-zA-Z0-9./:_-]*@sha256:[a-f0-9]{64}$"
+                },
+                "ssh": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "user",
+                    "identityFile",
+                    "knownHostsFile"
+                  ],
+                  "properties": {
+                    "user": {
+                      "type": "string",
+                      "pattern": "^[a-z_][a-z0-9_-]*$"
+                    },
+                    "identityFile": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "knownHostsFile": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "port": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 65535
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
         "image": { "type": "string", "maxLength": 512, "pattern": "^[a-zA-Z0-9][a-zA-Z0-9./:_-]*@sha256:[a-f0-9]{64}$" },
         "cpu": { "type": "integer", "minimum": 1, "maximum": 4 },
         "memoryMiB": { "type": "integer", "minimum": 256, "maximum": 8192 },
         "setup": {
-          "description": "Dependency installation before the agent starts, with internet access and no credentials in the worker. Defaults to enabled, detected from the repository's lockfiles.",
+          "description": "Setup execution settings before agent credentials are available. The caller selects the commands to execute.",
           "type": "object", "additionalProperties": false,
           "required": ["enabled"],
           "properties": {
@@ -42,7 +120,7 @@
       }
     },
     "source": {
-      "description": "Where the code lives. Selects the source host adapter; github is a GitHub App installation that issues short-lived, repository-scoped tokens. permissions is what the agent's token may do in the repository; it defaults to contents: write, enough to push a task branch.",
+      "description": "Where the code lives. Selects the source host adapter; github is a GitHub App installation that issues short-lived, repository-scoped tokens. permissions is what the agent's token may do in the repository; it defaults to contents: write, for repository writes.",
       "type": "object", "additionalProperties": false,
       "required": ["provider", "repository", "appId", "installationId", "additionalRepositories"],
       "properties": {
@@ -68,42 +146,13 @@
         }
       }
     },
-    "launchPolicy": {
-      "oneOf": [
-        {
-          "type": "object", "additionalProperties": false,
-          "required": ["mode", "minimumPermission"],
-          "properties": {
-            "mode": { "const": "authorized-author" },
-            "minimumPermission": { "$ref": "#/definitions/permission" }
-          }
-        },
-        {
-          "type": "object", "additionalProperties": false,
-          "required": ["mode", "minimumPermission", "label"],
-          "properties": {
-            "mode": { "const": "maintainer-approval" },
-            "minimumPermission": { "$ref": "#/definitions/permission" },
-            "label": { "type": "string", "minLength": 1, "maxLength": 50, "pattern": "^[a-zA-Z0-9][a-zA-Z0-9: _-]*$" }
-          }
-        },
-        {
-          "type": "object", "additionalProperties": false,
-          "required": ["mode", "allowPublicContributors"],
-          "properties": {
-            "mode": { "const": "any-author" },
-            "allowPublicContributors": { "const": true }
-          }
-        }
-      ]
-    },
     "limits": {
       "type": "object", "additionalProperties": false,
       "required": ["enabled", "maxConcurrent", "maxRunsPerSubject", "maxRunsPerMonth", "timeoutMinutes", "maxModelRequests", "maxInputTokensPerRequest", "maxOutputTokensPerRequest", "maxModelCostMicrousdPerRun", "maxCostMicrousdPerMonth", "inputMicrousdPerMillionTokens", "outputMicrousdPerMillionTokens", "computeMicrousdPerMinute"],
       "properties": {
         "enabled": { "type": "boolean" },
         "maxConcurrent": { "type": "integer", "minimum": 1, "maximum": 100 },
-        "maxRunsPerSubject": { "description": "Runs one task subject (for example one issue) may start.", "type": "integer", "minimum": 1, "maximum": 100 },
+        "maxRunsPerSubject": { "description": "Maximum runs per caller-supplied subject identifier.", "type": "integer", "minimum": 1, "maximum": 100 },
         "maxRunsPerMonth": { "type": "integer", "minimum": 1, "maximum": 100000 },
         "timeoutMinutes": { "description": "At most 55, so a run ends before its one-hour source tokens expire.", "type": "integer", "minimum": 1, "maximum": 55 },
         "overheadMinutes": { "description": "Minutes the host spends around each run (start-up, evidence upload, teardown), reserved with the run. Defaults to 0.", "type": "integer", "minimum": 0, "maximum": 60 },
@@ -128,7 +177,6 @@
         "pull_requests": { "enum": ["read", "write"] }
       }
     },
-    "permission": { "enum": ["read", "triage", "write", "maintain", "admin"] },
     "cost": { "type": "integer", "minimum": 1, "maximum": 1000000000000 }
   }
 }
