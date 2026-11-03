@@ -70,6 +70,21 @@ resource "docker_image" "agent" {
   }
 }
 
+resource "docker_volume" "workspace" {
+  count = try(local.runtime.environment.workspaceDevice, null) == null ? 0 : 1
+  name = "agent-runtime-workspace-${var.owner}"
+  driver = "local"
+  driver_opts = {
+    type = "ext4"
+    device = try(local.runtime.environment.workspaceDevice, "")
+    o = "rw,exec,nosuid,nodev"
+  }
+  labels {
+    label = "agent-runtime.owner"
+    value = var.owner
+  }
+}
+
 resource "docker_container" "agent" {
   name          = local.name
   image         = docker_image.agent.image_id
@@ -82,14 +97,24 @@ resource "docker_container" "agent" {
   cpus          = tostring(local.runtime.environment.cpu)
   memory        = local.runtime.environment.memoryMiB
   memory_swap   = local.runtime.environment.memoryMiB
-  security_opts = ["no-new-privileges:true"]
+  security_opts = concat(["no-new-privileges:true"], try(local.runtime.environment.namespaceProfile, null) == null ? [] : [
+    "apparmor=${local.runtime.environment.namespaceProfile}", "seccomp=unconfined"
+  ])
   entrypoint    = ["/bin/sleep"]
   command       = [tostring(local.runtime.environment.timeoutSeconds)]
   log_driver    = "none"
-  tmpfs = {
-    "/tmp"       = "rw,noexec,nosuid,nodev,size=64m,uid=10001,gid=10001"
-    # exec is explicit: Docker mounts tmpfs noexec by default, and builds run installed binaries (esbuild, Rollup, venvs).
+  tmpfs = merge({
+    "/tmp" = "rw,noexec,nosuid,nodev,size=64m,uid=10001,gid=10001"
+  }, try(local.runtime.environment.workspaceDevice, null) == null ? {
     "/workspace" = "rw,exec,nosuid,nodev,size=${local.runtime.environment.memoryMiB}m,uid=10001,gid=10001"
+  } : {})
+  dynamic "volumes" {
+    for_each = docker_volume.workspace
+    content {
+      volume_name = volumes.value.name
+      container_path = "/workspace"
+      read_only = false
+    }
   }
   capabilities {
     drop = ["ALL"]

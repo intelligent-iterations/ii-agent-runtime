@@ -1,0 +1,7 @@
+# Replace Semgrep's default exclusions: first-party tests are part of the audit.
+.git/
+node_modules/
+dist/
+__pycache__/
+*.min.js
+*.min.css

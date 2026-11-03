@@ -33,6 +33,12 @@ export function compileConfiguration(input: unknown): CompiledConfiguration {
   source.additionalRepositories.sort((a, b) => a.repository < b.repository ? -1 : a.repository > b.repository ? 1 : 0);
   if (configuration.limits.maxCostMicrousdPerMonth < configuration.limits.maxModelCostMicrousdPerRun) throw new ConfigurationError('BUDGET');
   if (configuration.limits.maxRunsPerSubject > configuration.limits.maxRunsPerMonth) throw new ConfigurationError('RUN_LIMIT');
+  const bindings = configuration.credentialBindings;
+  if (bindings) {
+    const references = bindings.map(binding => canonicalJson(binding));
+    if (new Set(references).size !== references.length) throw new ConfigurationError('DUPLICATE_CREDENTIAL_BINDING');
+    bindings.sort((left, right) => canonicalJson(left) < canonicalJson(right) ? -1 : canonicalJson(left) > canonicalJson(right) ? 1 : 0);
+  }
   const canonical = canonicalJson(configuration);
   const { revision: _revision, ...semantic } = configuration;
   return { configuration, canonical, setupDigest: digest(canonicalJson(semantic)), artifactDigest: digest(canonical) };

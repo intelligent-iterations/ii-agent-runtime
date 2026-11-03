@@ -3,6 +3,8 @@ import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { once } from 'node:events';
 import { isIPv4 } from 'node:net';
 import type { InstallationToken } from '../source/github/app.js';
+import { ToolError, type ToolSession } from '../../runtime/tools.js';
+import { assertToolSessionAdmitted } from '../../runtime/preflight.js';
 
 function authenticated(header: string | undefined, secret: string): boolean {
   let candidate = header?.startsWith('Bearer ') ? header.slice(7) : '';
@@ -33,10 +35,14 @@ export async function openWorkerGateway(options: {
   fetch?: typeof fetch;
   /** Exact request paths denied by the caller, in addition to credential scope. */
   deniedRequests?: ReadonlyArray<{ method: string; path: string }>;
+  /** Scoped mode exposes only these tools; legacy repository proxy routes are unavailable. */
+  tools?: ToolSession;
 }) {
+  if (options.tools) assertToolSessionAdmitted(options.tools);
   if (!isIPv4(options.address) || options.address === '0.0.0.0') throw Error('Gateway must bind a specific IPv4 interface');
   const grants = new Map(options.grants.map(grant => [grant.repository.toLowerCase(), grant]));
-  if (!grants.size || grants.size > 11 || grants.size !== options.grants.length) throw Error('Invalid gateway grants');
+  if ((!grants.size && !options.tools) || grants.size > 11 || grants.size !== options.grants.length ||
+    (options.tools && grants.size)) throw Error('Invalid gateway grants');
   for (const [repository, grant] of grants) if (!/^[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+$/.test(repository) || !grant.token) throw Error('Invalid gateway grant');
   const deniedRequests = new Set((options.deniedRequests ?? []).map(rule => {
     if (!/^[A-Z]+$/.test(rule.method) || !/^\/[A-Za-z0-9._/-]+$/.test(rule.path) || rule.path.includes('..') || rule.path.includes('//')) throw Error('Invalid gateway request policy');
@@ -69,12 +75,21 @@ export async function openWorkerGateway(options: {
         const method = request.method ?? '';
         if (deniedRequests.has(`${method} ${url.pathname}`)) throw Error('Request denied by policy');
         let upstream: Response;
-        if (url.pathname === '/v1/responses' && method === 'POST' && !url.search) {
+        if (options.tools && url.pathname === '/tools' && method === 'GET' && !url.search) {
+          upstream = Response.json(options.tools.tools.map(tool => ({ name: tool.name, description: tool.description, inputSchema: tool.inputSchema })));
+        } else if (options.tools && /^\/tools\/[a-zA-Z0-9._-]+$/.test(url.pathname) && method === 'POST' && !url.search) {
+          if (request.headers['content-encoding']) throw new ToolError('TOOL_INVALID_INPUT');
+          const payload = await body(request, 1048576);
+          transferred += payload.length;
+          const input = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(payload));
+          upstream = Response.json(await options.tools.invoke(url.pathname.slice('/tools/'.length), input, signal));
+        } else if (url.pathname === '/v1/responses' && method === 'POST' && !url.search) {
           if (request.headers['content-encoding']) throw Error('Encoded model input not supported');
           const payload = await body(request, 1048576);
           transferred += payload.length;
           upstream = await options.model.respond(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(payload)));
         } else {
+          if (options.tools) throw new ToolError('TOOL_DENIED');
           const match = /^\/(git|github)\/([a-zA-Z0-9-]+)\/([a-zA-Z0-9_.-]+)(\/.*)?$/.exec(url.pathname);
           if (!match) throw Error('Unsupported route');
           const kind = match[1];
@@ -123,9 +138,10 @@ export async function openWorkerGateway(options: {
           } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
         }
         response.end();
-      } catch {
+      } catch (error) {
         if (response.headersSent) response.destroy();
-        else reject(502);
+        else reject(error instanceof ToolError && error.code === 'TOOL_DENIED' ? 403 :
+          error instanceof ToolError && error.code === 'TOOL_INVALID_INPUT' ? 400 : 502);
       } finally { active--; }
     })();
     pending.add(operation);

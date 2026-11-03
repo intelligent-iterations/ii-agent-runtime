@@ -3,6 +3,15 @@ import { test } from 'node:test';
 import { tmpdir } from 'node:os';
 import { ProcessFailure, runTrustedProcess, type ProcessFailureKind, type ProcessRequest } from '../../../src/providers/shared/process.js';
 
+test('trusted commands accept bounded long-run budgets and reject any value beyond two hours', async () => {
+  const command = { command: process.execPath, args: ['-e', 'process.stdout.write("bounded")'],
+    cwd: tmpdir(), env: {}, maxOutputBytes: 128 };
+  for (const timeoutMs of [5400000, 7200000]) {
+    assert.equal(await runTrustedProcess({ ...command, timeoutMs }), 'bounded');
+  }
+  await assert.rejects(runTrustedProcess({ ...command, timeoutMs: 7200001 }), /Invalid process limits/);
+});
+
 test('process failures distinguish cancellation, deadlines, output exhaustion and command failure without child text', async () => {
   const base = { command: process.execPath, cwd: tmpdir(), env: {}, timeoutMs: 3000, maxOutputBytes: 128 };
   const canceled = new AbortController(); canceled.abort();

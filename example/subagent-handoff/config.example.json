@@ -1,0 +1,12 @@
+{
+  "project": "./sample",
+  "task": "The test script fails. Investigate the cause and hand a precise fix to the coder.",
+  "testScript": "test",
+  "coderWritablePaths": [
+    "src/cart.js",
+    "src/currency.js"
+  ],
+  "model": "gpt-5.6-terra",
+  "inputMicrousdPerMillionTokens": 2000000,
+  "outputMicrousdPerMillionTokens": 12000000
+}

@@ -1,0 +1,27 @@
+{
+  "name": "deployment-boundary-checker-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.16"
+  },
+  "bin": {
+    "deployment-boundary-checker": "dist/src/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit && tsx --test test/*.test.ts",
+    "start": "tsx src/cli.ts",
+    "demo": "tsx src/cli.ts --grants agents/broad.ts --compare agents/restricted.ts --workflows fixtures/functions/workflows",
+    "test:package": "node scripts/standalone.mjs"
+  },
+  "dependencies": {
+    "@intelligent-iterations/ii-agent-runtime": "file:../.."
+  },
+  "devDependencies": {
+    "@types/node": "22.20.4",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

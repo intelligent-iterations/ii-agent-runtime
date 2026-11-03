@@ -1,0 +1,18 @@
+rules:
+  - id: dot-only-regexp-escaping
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      Escaping only dots does not make a string safe for a regular expression.
+      Use a literal string comparison when possible, or a complete regexp escaping
+      helper that also handles backslashes and every other regexp metacharacter.
+    metadata:
+      license: Apache-2.0
+      category: security
+      cwe: 'CWE-116: Improper Encoding or Escaping of Output'
+      references:
+        - https://codeql.github.com/codeql-query-help/javascript/js-incomplete-sanitization/
+    pattern-either:
+      - pattern: $VALUE.replace(/[.]/g, '\\.')
+      - pattern: $VALUE.replace(/\./g, '\\.')
+      - pattern: $VALUE.replaceAll('.', '\\.')

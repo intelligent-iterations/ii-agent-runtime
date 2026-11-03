@@ -1,0 +1,24 @@
+{
+  "name": "subagent-handoff-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.16"
+  },
+  "scripts": {
+    "build": "tsc && node scripts/copy-assets.mjs",
+    "check": "tsc --noEmit && tsx --test test/*.test.ts",
+    "demo": "tsx src/cli.ts --demo",
+    "start": "tsx src/cli.ts",
+    "test:package": "node scripts/standalone.mjs"
+  },
+  "dependencies": {
+    "@intelligent-iterations/ii-agent-runtime": "file:../.."
+  },
+  "devDependencies": {
+    "@types/node": "22.20.4",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
