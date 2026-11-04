@@ -4,12 +4,8 @@ import { LOG_VIEW_PATTERN, PROJECT_PATTERN, RESOURCE_PATTERN, RESOURCE_TYPES, ty
 /** Trusted configuration. It holds no secrets: credentials come from the host environment. */
 export interface Config {
   project: string; resourceType: ResourceType; resource: string; logView?: string;
-  /** Emulator origin; set only for emulator runs. */
-  emulator?: string;
   execution?: string; image?: string; model?: string;
   inputMicrousdPerMillionTokens?: number; outputMicrousdPerMillionTokens?: number;
-  /** Lines the CLI prints before running, such as ignored settings. */
-  notices: string[];
 }
 
 const unset = (value: unknown) => typeof value !== 'string' || value.startsWith('YOUR_');
@@ -36,18 +32,9 @@ export function parseConfig(raw: unknown): Config {
     throw Error('Set "resource" in config.json to the exact function or Cloud Run service name');
   if (input.logView !== undefined && (typeof input.logView !== 'string' || !new RegExp(LOG_VIEW_PATTERN).test(input.logView)))
     throw Error('logView must look like locations/global/buckets/_Default/views/VIEW_ID');
-  const config = { ...input, notices: [] } as unknown as Config;
-  delete (config as { emulatorEndpoint?: unknown }).emulatorEndpoint;
-  if (input.emulatorEndpoint !== undefined) {
-    const url = URL.parse(String(input.emulatorEndpoint));
-    if (!url || !['http:', 'https:'].includes(url.protocol)) throw Error('emulatorEndpoint must be an http(s) URL');
-    config.emulator = url.origin;
-    if (config.logView !== undefined) {
-      delete config.logView;
-      config.notices.push('EMULATOR MODE: floci-gcp has no log views; logView is ignored.');
-    }
-  }
-  return config;
+  if (input.emulatorEndpoint !== undefined)
+    throw Error('Remove "emulatorEndpoint" from config.json: the CLI always reads Cloud Logging. The emulator is used only by npm run test:demo');
+  return input as unknown as Config;
 }
 
 /** Codex runs only: the worker image, the selected model and its rates, which the runtime's model gateway uses to bound spend. */

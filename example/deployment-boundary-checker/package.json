@@ -13,7 +13,8 @@
     "build": "tsc",
     "check": "tsc --noEmit && tsx --test test/*.test.ts",
     "start": "tsx src/cli.ts",
-    "demo": "tsx src/cli.ts --grants agents/broad.ts --compare agents/restricted.ts --workflows fixtures/functions/workflows",
+    "demo": "tsx src/cli.ts --grants agents/broad.ts --compare agents/restricted.ts --github",
+    "test:demo": "tsx --test test/demo.test.ts",
     "test:package": "node scripts/standalone.mjs"
   },
   "dependencies": {

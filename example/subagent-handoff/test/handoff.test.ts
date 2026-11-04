@@ -6,11 +6,11 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { admitToolSession, analyzeInvocations, createToolSession, preflightTools } from '@intelligent-iterations/ii-agent-runtime/runtime';
 import { openWorkerGateway } from '@intelligent-iterations/ii-agent-runtime/tools';
-import { scriptedCoder, scriptedModel, scriptedPlanner } from '../src/model.js';
 import { DEFAULT_TASK, loadConfig } from '../src/config.js';
 import { buildControl, CODER, describeSystem, PLANNER, route, summarize, TASK_EVENT, testFile } from '../src/system.js';
 import { HANDOFF_EVENT, projectFiles, workspaceTools } from '../src/workspace.js';
 import { agentEnvironment, runHandoff } from '../src/workflow.js';
+import { scriptedCoder, scriptedModel, scriptedPlanner } from './scripted-model.js';
 
 const NAME = 'sample-cart';
 const SOURCES = ['src/cart.js', 'src/currency.js'];
@@ -57,8 +57,7 @@ test('declared invokers drive routing: only matching events activate an agent', 
 
 test('restricted handoff fixes the failing test; out-of-scope writes are denied by the gateway', () => withCopy(async (root, read) => {
   const before = { test: read('test/cart.test.js'), manifest: read('package.json'), currency: read('src/currency.js') };
-  const result = await runHandoff({ ...options(root), coderWritablePaths: SOURCES, models: scripted,
-    probe: ['test/cart.test.js', 'package.json', 'src/currency.js'] });
+  const result = await runHandoff({ ...options(root), coderWritablePaths: SOURCES, models: scripted, probe: true });
   assert.equal(result.before, 1);
   assert.equal(result.after, 0);
   assert.deepEqual(calls(result.planner.steps), ['run-script:200', 'read-file:200', 'read-file:200', 'handoff-to-coder:200']);
@@ -68,11 +67,11 @@ test('restricted handoff fixes the failing test; out-of-scope writes are denied 
   assert.deepEqual(calls(result.coder!.steps), ['read-file:200', 'write-file:200', 'run-script:200']);
   assert.equal(result.coder!.steps[2]!.exitCode, 0);
   assert.match(read('src/cart.js'), /sum \+ item\.priceCents \* item\.quantity/);
-  // Probes re-write current content, so even an unexpected success could not alter the project.
+  // Every file outside the narrowed grant is probed. Probes re-write current content, so even an unexpected success could not alter the project.
   assert.deepEqual(result.probes, [
-    { path: 'test/cart.test.js', status: 403, unchanged: true },
     { path: 'package.json', status: 403, unchanged: true },
     { path: 'src/currency.js', status: 403, unchanged: true },
+    { path: 'test/cart.test.js', status: 403, unchanged: true },
   ]);
   assert.deepEqual({ test: read('test/cart.test.js'), manifest: read('package.json'), currency: read('src/currency.js') }, before);
 }));

@@ -48,10 +48,10 @@ install their Linux plugins independently. Use only disposable emulator instance
   (or set `II_EMULATOR_RUNNER_IMAGE`), then run
   `python3 test/live/deployment/azure.py`. TLS trust is confined to its Linux runner.
 - GCP: `python3 test/live/deployment/gcp.py` with Docker available.
-- OCI: `go -C test/live/deployment/oci-emulator test -v -count=1 .` with Go 1.26+.
+- OCI: `go -C test/live/deployment/oci-emulator test -v -count=1 .` with Go 1.26.10+.
   The provider's IPv6 polling makes this take approximately four minutes.
 - DigitalOcean: `go -C test/live/deployment/digitalocean-emulator test -v -count=1 .`
-  with Go 1.26+.
+  with Go 1.26.10+.
 - Hetzner: `python3.12 test/live/deployment/hetzner.py`. The harness checks out the
   exact upstream revision, installs it in an isolated venv, and owns its database,
   synthetic key/firewall, process and listener. Python 3.12+, Git and ssh-keygen

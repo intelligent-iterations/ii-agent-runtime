@@ -1,6 +1,6 @@
 module ii-runtime-deployment-emulator-test
 
-go 1.26.0
+go 1.26.10
 
 require github.com/gravel-project/gravel v0.10.3
 

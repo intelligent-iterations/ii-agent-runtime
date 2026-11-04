@@ -13,6 +13,7 @@ import { checkBoundary, checkGcpTokenFile, checkoutOf, gcpServiceAccounts, githu
 import { renderComparison, renderResult } from '../src/render.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+// The sample acme/functions repository: a deploy workflow and two grants files. The demo itself checks a real repository (demo.test.ts).
 const workflows = join(root, 'fixtures/functions/workflows');
 const prod = 'deployer@acme-functions-prod.iam.gserviceaccount.com';
 const dev = 'deployer@acme-functions-dev.iam.gserviceaccount.com';
@@ -61,7 +62,7 @@ async function inDirectory<T>(files: Record<string, string>, use: (directory: st
 }
 
 test('broad sample: each deploy job its files reach is a path to every service account a run on main can use, and to a stored key', async () => {
-  const result = await check(await loadAgent(join(root, 'agents/broad.ts')));
+  const result = await check(await loadAgent(join(root, 'fixtures/functions/agents/broad.ts')));
   assert.equal(result.answer, 'yes');
   assert.equal(result.admission, 'blocked');
   for (const step of [assumesProd, `assumes gcp ${dev} via OIDC through ${pool}/providers/github`,
@@ -79,7 +80,7 @@ test('broad sample: each deploy job its files reach is a path to every service a
 
 test('restricted sample: documentation is clear, admitted, and needs no GCP reads', () => withGcpReader(async tokenFile => {
   const calls: string[] = [];
-  const result = await check(await loadAgent(join(root, 'agents/restricted.ts')),
+  const result = await check(await loadAgent(join(root, 'fixtures/functions/agents/restricted.ts')),
     { workflowIdentity: { gcp: gcpServiceAccounts(tokenFile, new Set(), recordedGcp(calls)) } });
   assert.equal(result.execution.status, 'clear');
   assert.equal(result.answer, 'no');
@@ -158,8 +159,8 @@ test('grants modules must export subject, tools and grants', async () => {
 });
 
 test('the comparison shows the change narrowing makes', async () => {
-  const runs = [{ label: 'broad', result: await check(await loadAgent(join(root, 'agents/broad.ts'))) },
-    { label: 'restricted', result: await check(await loadAgent(join(root, 'agents/restricted.ts'))) }];
+  const runs = [{ label: 'broad', result: await check(await loadAgent(join(root, 'fixtures/functions/agents/broad.ts'))) },
+    { label: 'restricted', result: await check(await loadAgent(join(root, 'fixtures/functions/agents/restricted.ts'))) }];
   const text = renderComparison(runs);
   assert.match(text, /Writable files\s+4\s+1\n/);
   assert.match(text, /workflow-execution\s+FINDING\s+CLEAR/);
@@ -194,7 +195,7 @@ test('GitHub reads treat unreadable Actions settings as enabled and say so', asy
 });
 
 test('real-world-sized paths list each service account once and stay readable', async () => {
-  const result = await check(await loadAgent(join(root, 'agents/broad.ts')));
+  const result = await check(await loadAgent(join(root, 'fixtures/functions/agents/broad.ts')));
   const jobs = Array.from({ length: 20 }, (_, index) => [`acme/functions@main:.github/workflows/build.yml#job-${index}`,
     assumesProd, 'identity authority not assessed']).flat();
   const large = { ...result, execution: { ...result.execution, path: jobs } };
@@ -214,24 +215,25 @@ async function runCli(args: string[], env: Record<string, string> = {}) {
 }
 const fixture = 'fixtures/functions/workflows';
 test('CLI exit codes describe the answer', async () => {
-  const restricted = await runCli(['--grants', 'agents/restricted.ts', '--workflows', fixture]);
+  const restricted = await runCli(['--grants', 'fixtures/functions/agents/restricted.ts', '--workflows', fixture]);
   assert.equal(restricted.code, 0);
   assert.match(restricted.stdout, /NO RECOGNIZED PATH/);
   assert.match(restricted.stdout, /\nInspected 1 workflow file\(s\) from fixtures\/functions\/workflows\.\n/);
-  const broad = await runCli(['--grants', 'agents/broad.ts', '--workflows', fixture, '--report']);
+  const broad = await runCli(['--grants', 'fixtures/functions/agents/broad.ts', '--workflows', fixture, '--report']);
   assert.equal(broad.code, 1);
   assert.match(broad.stdout, /II Agent Runtime \| Permission preflight/);
   assert.match(broad.stderr, /without --gcp-token-file, GCP service accounts/);
-  const json = await runCli(['--grants', 'agents/broad.ts', '--compare', 'agents/restricted.ts', '--workflows', fixture, '--json']);
+  const json = await runCli(['--grants', 'fixtures/functions/agents/broad.ts', '--compare', 'fixtures/functions/agents/restricted.ts', '--workflows', fixture, '--json']);
   assert.equal(json.code, 0);
   assert.deepEqual(JSON.parse(json.stdout).map((run: any) => [run.label, run.check.status]), [['broad', 'finding'], ['restricted', 'clear']]);
 });
 test('CLI rejects incomplete or unsafe configuration', async () => {
   for (const [args, message] of [
     [['--workflows', fixture], /--grants is required/],
-    [['--grants', 'agents/broad.ts'], /exactly one of --workflows or --github/],
-    [['--grants', 'agents/broad.ts', '--github'], /GITHUB_TOKEN/],
-    [['--grants', 'agents/broad.ts', '--workflows', fixture, '--gcp-token-file', 'token'], /--gcp-token-file must be an absolute path/],
+    [['--grants', 'fixtures/functions/agents/broad.ts'], /exactly one of --workflows or --github/],
+    [['--grants', 'fixtures/functions/agents/broad.ts', '--github'],
+      /^GITHUB_TOKEN is not set: --github reads workflows from GitHub with a token\. Put GITHUB_TOKEN=\$\(gh auth token\) before the command\.\n$/],
+    [['--grants', 'fixtures/functions/agents/broad.ts', '--workflows', fixture, '--gcp-token-file', 'token'], /--gcp-token-file must be an absolute path/],
   ] as [string[], RegExp][]) {
     const result = await runCli(args);
     assert.equal(result.code, 64);
@@ -239,7 +241,7 @@ test('CLI rejects incomplete or unsafe configuration', async () => {
   }
 });
 
-const grantsSource = readFileSync(join(root, 'agents/broad.ts'), 'utf8');
+const grantsSource = readFileSync(join(root, 'fixtures/functions/agents/broad.ts'), 'utf8');
 test('grants files outside this folder, globs and directories fail in plain words', async () => {
   const outside = mkdtempSync(join(tmpdir(), 'boundary-outside-'));
   // Inside the checker folder, so the runtime import resolves.
@@ -268,14 +270,14 @@ test('a directory without workflow files is a configuration error, never a clear
   try {
     mkdirSync(join(repository, '.github', 'workflows'), { recursive: true });
     writeFileSync(join(repository, '.github', 'workflows', 'deploy.yml'), readFileSync(join(workflows, 'deploy.yml')));
-    const root = await runCli(['--grants', 'agents/restricted.ts', '--workflows', repository]);
+    const root = await runCli(['--grants', 'fixtures/functions/agents/restricted.ts', '--workflows', repository]);
     assert.equal(root.code, 64);
     assert.ok(root.stderr.startsWith(`No workflow files (.yml/.yaml) in ${repository}. Did you mean ${join(repository, '.github', 'workflows')}?\n`), root.stderr);
     assert.equal(root.stdout, '');
     // The suggestion appears only when that directory exists.
     assert.throws(() => localWorkflows(join(repository, '.github'), { repository: 'acme/functions', branch: 'main' }),
       (error: Error) => error.message === `No workflow files (.yml/.yaml) in ${join(repository, '.github')}.`);
-    const checked = await runCli(['--grants', 'agents/restricted.ts', '--workflows', join(repository, '.github', 'workflows')]);
+    const checked = await runCli(['--grants', 'fixtures/functions/agents/restricted.ts', '--workflows', join(repository, '.github', 'workflows')]);
     assert.equal(checked.code, 0);
     assert.match(checked.stdout, /Inspected 1 workflow file\(s\) from .*\.github\/workflows\./);
   } finally { rmSync(repository, { recursive: true, force: true }); }
@@ -308,11 +310,11 @@ test('GCP setup mistakes fail at startup with exit 64; failed GCP reads name the
   try {
     const token = join(directory, 'token');
     assert.throws(() => checkGcpTokenFile(token), /--gcp-token-file \S+ cannot be read\. Create it with: gcloud auth print-access-token >/);
-    const absent = await runCli(['--grants', 'agents/broad.ts', '--workflows', fixture, '--gcp-token-file', token]);
+    const absent = await runCli(['--grants', 'fixtures/functions/agents/broad.ts', '--workflows', fixture, '--gcp-token-file', token]);
     assert.equal(absent.code, 64);
     assert.match(absent.stderr, /^--gcp-token-file \S+ cannot be read\./);
     writeFileSync(token, '\n');
-    const empty = await runCli(['--grants', 'agents/broad.ts', '--workflows', fixture, '--gcp-token-file', token]);
+    const empty = await runCli(['--grants', 'fixtures/functions/agents/broad.ts', '--workflows', fixture, '--gcp-token-file', token]);
     assert.equal(empty.code, 64);
     assert.match(empty.stderr, /^--gcp-token-file \S+ is empty\./);
 

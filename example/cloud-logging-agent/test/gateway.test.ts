@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { gcpCredentials, hostLine, startGateway } from '../src/gateway.js';
 import { cloudLoggingOperation, cloudLoggingTool, filterFor, MAX_WINDOW_MS, messageOf, summarize, type Scope } from '../src/cloud-logging.js';
+import { interceptGoogle } from './intercept-google.js';
 
 // Fixtures follow the documented entries.list response shape (LogEntry, nextPageToken). They are not live captures.
 const scope: Scope = { project: 'ii-demo-checkout', resourceType: 'cloud_function', resource: 'checkout' };
@@ -31,7 +32,7 @@ test('real runtime gateway enforces project, resource, operation, input and cred
   });
   server.listen(0, '127.0.0.1'); await once(server, 'listening');
   const address = server.address() as { port: number };
-  const gateway = await startGateway({ ...scope, address: '127.0.0.1', endpoint: `http://127.0.0.1:${address.port}`,
+  const gateway = await startGateway({ ...scope, address: '127.0.0.1', fetch: interceptGoogle(`http://127.0.0.1:${address.port}`),
     deadlineMs: now + 60000, signal: new AbortController().signal,
     resolveCredential: async () => { resolution++; return { values: { accessToken: secret }, expiresAt: now + 60000 }; },
     model: { respond: async () => new Response(null, { status: 403 }) }, hostLog: line => hostLines.push(line) });
@@ -155,7 +156,7 @@ test('upstream failure reasons reach only the trusted host, one capped line with
   const now = Date.now(), lines: string[] = [];
   const query = { project: scope.project, resource: scope.resource, startTime: now - 60000, endTime: now };
   const attempt = async (endpoint: string, resolveCredential: () => Promise<{ values: Record<string, string>; expiresAt: number }>) => {
-    const gateway = await startGateway({ ...scope, address: '127.0.0.1', endpoint, deadlineMs: now + 60000, signal: new AbortController().signal,
+    const gateway = await startGateway({ ...scope, address: '127.0.0.1', fetch: interceptGoogle(endpoint), deadlineMs: now + 60000, signal: new AbortController().signal,
       resolveCredential, model: { respond: async () => new Response(null, { status: 403 }) }, hostLog: line => lines.push(line) });
     try {
       const response = await fetch(`${gateway.endpoint}/tools/cloudLoggingErrors`, { method: 'POST', body: JSON.stringify(query),

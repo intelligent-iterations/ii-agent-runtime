@@ -64,8 +64,11 @@ export interface HandoffOptions {
   model: string;
   models(subject: string): ModelSession;
   signal: AbortSignal;
-  /** Demo/test only: after the coder finishes, try these writes with its handle. Each re-writes current content. */
-  probe?: readonly string[];
+  /**
+   * Demo and tests: after the coder finishes, try write-file with its token on every project file outside its
+   * narrowed grant. Each probe re-writes the file's current content, so even a wrongly allowed write changes nothing.
+   */
+  probe?: boolean;
 }
 
 export async function runHandoff(options: HandoffOptions) {
@@ -77,7 +80,8 @@ export async function runHandoff(options: HandoffOptions) {
     handoffs.push(request);
     return 'task-1';
   } });
-  const system = describeSystem(tools, { name, files: projectFiles(root), testScript,
+  const files = projectFiles(root);
+  const system = describeSystem(tools, { name, files, testScript,
     ...(options.coderWritablePaths ? { coderWritablePaths: options.coderWritablePaths } : {}) });
   const analysis = analyzeInvocations(system.catalog);
   const deadlineMs = Date.now() + 900_000;
@@ -110,19 +114,19 @@ export async function runHandoff(options: HandoffOptions) {
   if (request) {
     // The coder's declared invoker decides activation. The planner's file list can only narrow the coder's configured bound.
     const routedTo = route(system.catalog, HANDOFF_EVENT, { project: request.project });
-    const files = request.files.filter(path => system.writable.includes(path));
-    handoff = { ...request, routedTo, grantedFiles: files, refusedFiles: request.files.filter(path => !files.includes(path)) };
-    if (routedTo.includes(CODER) && files.length) {
+    const granted = request.files.filter(path => system.writable.includes(path));
+    handoff = { ...request, routedTo, grantedFiles: granted, refusedFiles: request.files.filter(path => !granted.includes(path)) };
+    if (routedTo.includes(CODER) && granted.length) {
       const grants = system.grants[CODER].flatMap(grant => {
         if (grant.tool !== 'write-file') return [grant];
-        const path = grant.resources.path!.filter(value => files.includes(String(value)));
+        const path = grant.resources.path!.filter(value => granted.includes(String(value)));
         return path.length ? [narrowGrant(grant, { resources: { project: grant.resources.project!, path } })] : [];
       });
       const coder = await open(CODER, grants);
       try {
         coderResult = await agent(coder.gateway, CODER_INSTRUCTIONS,
-          `${brief}Files you may edit: ${files.join(', ')}\n\nPlan from the planner:\n${request.summary}\n${request.plan}`);
-        for (const path of options.probe ?? []) {
+          `${brief}Files you may edit: ${granted.join(', ')}\n\nPlan from the planner:\n${request.summary}\n${request.plan}`);
+        for (const path of options.probe ? files.filter(file => !granted.includes(file)) : []) {
           const content = readFileSync(`${root}/${path}`, 'utf8');
           const response = await fetch(`${coder.gateway.endpoint}/tools/write-file`, { method: 'POST',
             headers: { authorization: `Bearer ${coder.gateway.token}`, 'content-type': 'application/json' },

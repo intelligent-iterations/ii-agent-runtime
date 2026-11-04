@@ -14,7 +14,8 @@ Answers: can this coding agent change anything that runs with deployment credent
                            Keep it in this folder's agents/ so it uses the checker's installed runtime
   --compare <file>         A second grants module, shown side by side with the first
   --workflows <dir>        Read workflow files from a local checkout, for example /path/to/repo/.github/workflows
-  --github                 Read workflows and Actions settings from GitHub; needs a read token in GITHUB_TOKEN
+  --github                 Read the branch's current workflows and Actions settings from GitHub (read-only).
+                           Needs a token in GITHUB_TOKEN, for example GITHUB_TOKEN=$(gh auth token)
   --gcp-token-file <path>  Absolute path to a file holding a GCP OAuth access token for a reader (for example
                            gcloud auth print-access-token). Assesses the GCP service accounts that deploy jobs use
   --report                 Also print the full runtime preflight report
@@ -24,10 +25,15 @@ Without --gcp-token-file, the GCP service accounts deploy jobs use are listed bu
 assessed. Identities from other clouds are always listed, never assessed.
 
 Exit codes: 0 no recognized path, 1 path found, 2 can't tell, 64 usage or configuration error.
-With --compare, the exit code describes the --compare configuration.`;
+With --compare, the exit code describes the --compare configuration.
+
+npm run demo checks agents/broad.ts and agents/restricted.ts against the public repository
+GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp on GitHub: GITHUB_TOKEN=$(gh auth token) npm run demo`;
 
 /** Argument mistakes: the usage text follows the message. */
 class UsageError extends Error {}
+/** A missing setting. The message is one line that names the setting and the fix, and nothing follows it. */
+class SettingError extends Error {}
 const label = (file: string) => basename(file).replace(/\.[cm]?[jt]s$/, '');
 
 async function main(argv: string[]): Promise<number> {
@@ -41,7 +47,9 @@ async function main(argv: string[]): Promise<number> {
   const tokenFile = values['gcp-token-file'];
   if (tokenFile !== undefined && !isAbsolute(tokenFile)) throw new UsageError('--gcp-token-file must be an absolute path');
   const token = process.env.GITHUB_TOKEN;
-  if (values.github && !token) throw new UsageError('--github needs a read token in GITHUB_TOKEN, for example GITHUB_TOKEN=$(gh auth token)');
+  if (values.github && !token) throw new SettingError(process.env.npm_lifecycle_event === 'demo'
+    ? 'GITHUB_TOKEN is not set: the demo reads the repository\'s workflows from GitHub with your token. Run: GITHUB_TOKEN=$(gh auth token) npm run demo'
+    : 'GITHUB_TOKEN is not set: --github reads workflows from GitHub with a token. Put GITHUB_TOKEN=$(gh auth token) before the command.');
   // Setup mistakes fail here, not later as unreadable service accounts.
   if (tokenFile) checkGcpTokenFile(tokenFile);
   const notes = new Set<string>();
@@ -56,7 +64,7 @@ async function main(argv: string[]): Promise<number> {
     if (values.workflows) {
       const scope = singleScope(agent);
       workflows = localWorkflows(values.workflows, scope);
-      // The sample grants name acme's repository; say so when the checkout is another one.
+      // Say so when the checkout is not the repository or branch the grants write to.
       const checkout = checkoutOf(values.workflows);
       if (checkout.repository && checkout.repository.toLowerCase() !== scope.repository.toLowerCase())
         warnings.add(`Warning: ${values.workflows} is from ${checkout.repository}, but ${file} grants writes to ${scope.repository}. Set repository in ${file}.`);
@@ -85,6 +93,7 @@ async function main(argv: string[]): Promise<number> {
 main(process.argv.slice(2)).then(code => { process.exitCode = code; }, error => {
   // Argument, setup and configuration problems only. Provider errors never reach here: preflight reports them as unknown.
   const argument = error instanceof UsageError || /^ERR_PARSE_ARGS/.test(String((error as { code?: unknown })?.code));
-  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n${argument ? `\n${usage}\n` : 'Run with --help for usage.\n'}`);
+  const after = argument ? `\n${usage}\n` : error instanceof SettingError ? '' : 'Run with --help for usage.\n';
+  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n${after}`);
   process.exitCode = 64;
 });

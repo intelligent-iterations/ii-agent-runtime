@@ -1,0 +1,142 @@
+{
+  "recordedAt": "2026-11-04T16:02:46.498Z",
+  "note": "GitHub API responses (URL, status, body) from a read-only run of npm run demo, recorded by test/recorded-github.mjs.",
+  "responses": [
+    {
+      "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/actions/permissions",
+      "status": 403,
+      "body": {
+        "message": "You must have repository read permissions or have the repository Actions policies fine-grained permission.",
+        "documentation_url": "https://docs.github.com/rest/actions/permissions#get-github-actions-permissions-for-a-repository",
+        "status": "403"
+      }
+    },
+    {
+      "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/commits/main",
+      "status": 200,
+      "body": {
+        "sha": "31170f58a4e99a54723a9f7e1c2dba413e326571"
+      }
+    },
+    {
+      "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+      "status": 200,
+      "body": [
+        {
+          "name": "bump-chart-versions.yml",
+          "path": ".github/workflows/bump-chart-versions.yml",
+          "sha": "1a9cc30ebc3eea7962b1a18578c548fa34d8d383",
+          "size": 7633,
+          "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/bump-chart-versions.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+          "html_url": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/bump-chart-versions.yml",
+          "git_url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/1a9cc30ebc3eea7962b1a18578c548fa34d8d383",
+          "download_url": "https://raw.githubusercontent.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/bump-chart-versions.yml",
+          "type": "file",
+          "_links": {
+            "self": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/bump-chart-versions.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+            "git": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/1a9cc30ebc3eea7962b1a18578c548fa34d8d383",
+            "html": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/bump-chart-versions.yml"
+          }
+        },
+        {
+          "name": "e2e.yml",
+          "path": ".github/workflows/e2e.yml",
+          "sha": "fd2b0df20f9e283b141ce8aa8b6187dc5f4e85ef",
+          "size": 1799,
+          "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/e2e.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+          "html_url": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/e2e.yml",
+          "git_url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/fd2b0df20f9e283b141ce8aa8b6187dc5f4e85ef",
+          "download_url": "https://raw.githubusercontent.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/e2e.yml",
+          "type": "file",
+          "_links": {
+            "self": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/e2e.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+            "git": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/fd2b0df20f9e283b141ce8aa8b6187dc5f4e85ef",
+            "html": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/e2e.yml"
+          }
+        },
+        {
+          "name": "test.yml",
+          "path": ".github/workflows/test.yml",
+          "sha": "220ddbade0801c77159b0b44481e8ac267869328",
+          "size": 1292,
+          "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/test.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+          "html_url": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/test.yml",
+          "git_url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/220ddbade0801c77159b0b44481e8ac267869328",
+          "download_url": "https://raw.githubusercontent.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/test.yml",
+          "type": "file",
+          "_links": {
+            "self": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/test.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+            "git": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/220ddbade0801c77159b0b44481e8ac267869328",
+            "html": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/test.yml"
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/bump-chart-versions.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+      "status": 200,
+      "body": {
+        "name": "bump-chart-versions.yml",
+        "path": ".github/workflows/bump-chart-versions.yml",
+        "sha": "1a9cc30ebc3eea7962b1a18578c548fa34d8d383",
+        "size": 7633,
+        "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/bump-chart-versions.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+        "html_url": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/bump-chart-versions.yml",
+        "git_url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/1a9cc30ebc3eea7962b1a18578c548fa34d8d383",
+        "download_url": "https://raw.githubusercontent.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/bump-chart-versions.yml",
+        "type": "file",
+        "content": "bmFtZTogQnVtcCBIZWxtIENoYXJ0cyBWZXJzaW9ucwoKb246CiAgcHVsbF9y\nZXF1ZXN0OgogICAgdHlwZXM6CiAgICAgIC0gY2xvc2VkICAjIFRyaWdnZXIg\nd2hlbiB0aGUgUFIgaXMgY2xvc2VkIChtZXJnZWQgb3IgZGVjbGluZWQpCiAg\nICBicmFuY2hlczoKICAgICAgLSBtYWluICMgV2hlbiBtZXJnZWQgYnJhbmNo\nIGlzIG1haW4KCmpvYnM6CiAgYnVtcF9jaGFydHNfdmVyc2lvbjoKICAgIHJ1\nbnMtb246IHVidW50dS1sYXRlc3QKCiAgICBwZXJtaXNzaW9uczoKICAgICAg\nY29udGVudHM6IHdyaXRlCiAgICAgIHB1bGwtcmVxdWVzdHM6IHdyaXRlCiAg\nICAKICAgICMgU2tpcCB0aGUgam9iIGlmIHRoZSBQUiBzb3VyY2UgYnJhbmNo\nIGRvZXMgbm90IHN0YXJ0IHdpdGggJ3JlbGVhc2UtJwogICAgaWY6IGdpdGh1\nYi5ldmVudC5wdWxsX3JlcXVlc3QubWVyZ2VkID09IHRydWUgJiYgc3RhcnRz\nV2l0aChnaXRodWIuZXZlbnQucHVsbF9yZXF1ZXN0LmhlYWQucmVmLCAncmVs\nZWFzZS0nKQoKICAgIHN0ZXBzOgogICAgICAtIG5hbWU6IENoZWNrb3V0IHJl\ncG9zaXRvcnkKICAgICAgICB1c2VzOiBhY3Rpb25zL2NoZWNrb3V0QHYzCgog\nICAgICAtIG5hbWU6IEV4dHJhY3QgbGF0ZXN0IHZlcnNpb24KICAgICAgICBy\ndW46IHwKICAgICAgICAgICMgRXh0cmFjdCB0aGUgdmVyc2lvbiBmcm9tIHRo\nZSBicmFuY2ggbmFtZSAoZS5nLiwgcmVsZWFzZS0xLjIgb3IgcmVsZWFzZS0x\nLjIuMykKICAgICAgICAgIFZFUlNJT049JChlY2hvICIke0dJVEhVQl9FVkVO\nVF9QVUxMX1JFUVVFU1RfSEVBRF9SRUZ9IiB8IHNlZCAtRSAncy9ecmVsZWFz\nZS0oWzAtOV0rXC5bMC05XSsoXC5bMC05XSspPykkL1wxLycpCiAgICAgICAg\nICAKICAgICAgICAgICMgQ2hlY2sgaWYgdGhlIHZlcnNpb24gbWF0Y2hlcyB0\naGUgZXhwZWN0ZWQgZm9ybWF0CiAgICAgICAgICBpZiBbWyAiJFZFUlNJT04i\nID1+IF5bMC05XStcLlswLTldKyhcLlswLTldKyk/JCBdXTsgdGhlbgogICAg\nICAgICAgICBlY2hvICJUaGUgUFIgd2FzIG1lcmdlZCBmcm9tIGEgcmVsZWFz\nZSBicmFuY2ggd2l0aCB2ZXJzaW9uOiAkVkVSU0lPTiIKICAgICAgICAgICAg\nIyBFbnN1cmUgdGhlIHZlcnNpb24gZm9sbG93cyB4LngueCBmb3JtYXQgZm9y\nIGJpbmFyeSByZWxlYXNlCiAgICAgICAgICAgIGlmIFtbICIkVkVSU0lPTiIg\nPX4gXlswLTldK1wuWzAtOV0rJCBdXTsgdGhlbgogICAgICAgICAgICAgIFZF\nUlNJT049IiR7VkVSU0lPTn0uMCIKICAgICAgICAgICAgZmkKICAgICAgICAg\nICAgZWNobyAiVkVSU0lPTj0kVkVSU0lPTiIgPj4gJEdJVEhVQl9FTlYKICAg\nICAgICAgICAgZWNobyAkVkVSU0lPTgogICAgICAgICAgZWxzZQogICAgICAg\nICAgICBlY2hvICJJbnZhbGlkIGJyYW5jaCBuYW1lIGZvcm1hdC4gVGhlIHJl\nbGVhc2UgYnJhbmNoIG11c3QgbWF0Y2ggJ3JlbGVhc2UtWC5YJyBvciAncmVs\nZWFzZS1YLlguWCcuIgogICAgICAgICAgICBleGl0IDEKICAgICAgICAgIGZp\nCiAgICAgICAgZW52OgogICAgICAgICAgR0lUSFVCX0VWRU5UX1BVTExfUkVR\nVUVTVF9IRUFEX1JFRjogJHt7IGdpdGh1Yi5ldmVudC5wdWxsX3JlcXVlc3Qu\naGVhZC5yZWYgfX0KCiAgICAgIC0gbmFtZTogVmFsaWRhdGUgdmVyc2lvbgog\nICAgICAgIHJ1bjogfAogICAgICAgICAgaWYgW1sgLXogIiRWRVJTSU9OIiBd\nXTsgdGhlbgogICAgICAgICAgICBlY2hvICJFcnJvcjogVmVyc2lvbiBub3Qg\nZm91bmQuIEJyYW5jaCBzaG91bGQgZm9sbG93ICdyZWxlYXNlLTx2ZXJzaW9u\nPicgcGF0dGVybi4iCiAgICAgICAgICAgIGV4aXQgMQogICAgICAgICAgZmkK\nCiAgICAgIC0gbmFtZTogRmV0Y2ggdGFncwogICAgICAgIHJ1bjogZ2l0IGZl\ndGNoIC0tdGFncwogICAgICAgICAgCiAgICAgIC0gbmFtZTogR2V0IHNlY29u\nZCBsYXN0IHJlbGVhc2UgdmVyc2lvbnMKICAgICAgICBpZDogc2Vjb25kX2xh\nc3RfcmVsZWFzZV92ZXJzaW9uCiAgICAgICAgcnVuOiB8CiAgICAgICAgICAj\nIEV4dHJhY3QgU2Vjb25kIGxhc3QgcmVsZWFzZSBUQUcgZm9yIHVwZGF0ZSBp\nbiBNYWluIEhlbG0gQ2hhcnQKICAgICAgICAgIFNFQ09ORF9MQVNUX1JFTEVB\nU0VfVEFHPSQoZ2l0IHRhZyAtbCAtLXNvcnQ9LWNyZWF0b3JkYXRlIHwgaGVh\nZCAtbiAyIHwgdGFpbCAtbiAxKQogICAgICAgICAgU0VDT05EX0xBU1RfUkVM\nRUFTRV9UQUc9JChlY2hvICIkU0VDT05EX0xBU1RfUkVMRUFTRV9UQUciIHwg\nc2VkICdzL152Ly8nKQogICAgICAgICAgZWNobyAiU2Vjb25kIGxhc3QgcmVs\nZWFzZSB2ZXJzaW9uOiAkU0VDT05EX0xBU1RfUkVMRUFTRV9UQUciCiAgICAg\nICAgICBlY2hvICJTRUNPTkRfTEFTVF9SRUxFQVNFX1RBRz0kU0VDT05EX0xB\nU1RfUkVMRUFTRV9UQUciID4+ICRHSVRIVUJfRU5WCgogICAgICAtIG5hbWU6\nIEluc3RhbGwgeXEKICAgICAgICBydW46IHwKICAgICAgICAgICMgSW5zdGFs\nbCB5cSB0byBwYXJzZSBZQU1MIGZpbGVzCiAgICAgICAgICB3Z2V0IGh0dHBz\nOi8vZ2l0aHViLmNvbS9taWtlZmFyYWgveXEvcmVsZWFzZXMvZG93bmxvYWQv\ndjQuMTYuMS95cV9saW51eF9hbWQ2NCAtTyAvdXNyL2xvY2FsL2Jpbi95cQog\nICAgICAgICAgY2htb2QgK3ggL3Vzci9sb2NhbC9iaW4veXEKICAgICAgCiAg\nICAgIC0gbmFtZTogU2V0IHVwIEdpdCB1c2VyIGlkZW50aXR5CiAgICAgICAg\ncnVuOiB8CiAgICAgICAgICBnaXQgY29uZmlnIC0tZ2xvYmFsIHVzZXIubmFt\nZSAiR2l0SHViIEFjdGlvbnMiCiAgICAgICAgICBnaXQgY29uZmlnIC0tZ2xv\nYmFsIHVzZXIuZW1haWwgImdpdGh1Yi1hY3Rpb25zW2JvdF1AdXNlcnMubm9y\nZXBseS5naXRodWIuY29tIgoKICAgICAgLSBuYW1lOiBVcGRhdGUgbWFpbiBo\nZWxtIGNoYXJ0IHdpdGggc2Vjb25kIGxhc3QgdmVyc2lvbgogICAgICAgIHJ1\nbjogfAogICAgICAgICAgIyBVcGRhdGUgdGhlIHZlcnNpb24gaW4gdGhlIC9j\naGFydHMvc2VjcmV0cy1zdG9yZS1jc2ktZHJpdmVyLXByb3ZpZGVyLWdjcC9D\naGFydC55YW1sIGZpbGUKICAgICAgICAgIFZFUlNJT05fVE9fVVBEQVRFPSRT\nRUNPTkRfTEFTVF9SRUxFQVNFX1RBRwogICAgICAgICAgaWYgW1sgLXogIiRT\nRUNPTkRfTEFTVF9SRUxFQVNFX1RBRyIgXV07IHRoZW4KICAgICAgICAgICAg\nZWNobyAiTm8gbGFzdCByZWxlYXNlIHRhZyBmb3VuZC4gU2tpcHBpbmcgdmVy\nc2lvbiB1cGRhdGUuIgogICAgICAgICAgZWxzZQogICAgICAgICAgICBWRVJT\nSU9OX1RPX1VQREFURT0kU0VDT05EX0xBU1RfUkVMRUFTRV9UQUcKICAgICAg\nICAgIGZpCgogICAgICAgICAgZWNobyAiVXBkYXRpbmcgL2NoYXJ0cy9zZWNy\nZXRzLXN0b3JlLWNzaS1kcml2ZXItcHJvdmlkZXItZ2NwL0NoYXJ0LnlhbWwg\nd2l0aCB2ZXJzaW9uICRWRVJTSU9OX1RPX1VQREFURSIKCiAgICAgICAgICB5\ncSBlICIuYXBwVmVyc2lvbiA9IFwiJFZFUlNJT05fVE9fVVBEQVRFXCIiIC1p\nIGNoYXJ0cy9zZWNyZXRzLXN0b3JlLWNzaS1kcml2ZXItcHJvdmlkZXItZ2Nw\nL0NoYXJ0LnlhbWwKCiAgICAgICAgICBnaXQgYWRkIGNoYXJ0cy9zZWNyZXRz\nLXN0b3JlLWNzaS1kcml2ZXItcHJvdmlkZXItZ2NwL0NoYXJ0LnlhbWwKICAg\nICAgICAgIGdpdCBjb21taXQgLW0gIlVwZGF0ZSBDaGFydC55YW1sIHdpdGgg\ndmVyc2lvbiAkVkVSU0lPTl9UT19VUERBVEUiCiAgICAgICAgICBnaXQgcHVz\naAogICAgICAgIGVudjoKICAgICAgICAgIEdJVEhVQl9UT0tFTjogJHt7IHNl\nY3JldHMuR0lUSFVCX1RPS0VOIH19CiAgICAgIAogICAgICAtIG5hbWU6IFVw\nZGF0ZSBzdGFnaW5nIGhlbG0gY2hhcnQgd2l0aCBsYXRlc3QgdmVyc2lvbgog\nICAgICAgIHJ1bjogfAogICAgICAgICAgIyBVcGRhdGUgdGhlIHZlcnNpb24g\naW4gdGhlIG1hbmlmZXN0X3N0YWdpbmcvY2hhcnRzL3NlY3JldHMtc3RvcmUt\nY3NpLWRyaXZlci1wcm92aWRlci1nY3AvQ2hhcnQueWFtbCBmaWxlCiAgICAg\nICAgICBMQVNUX1ZFUlNJT05fVE9fVVBEQVRFPSRWRVJTSU9OCiAgICAgICAg\nICBpZiBbWyAteiAiJFZFUlNJT04iIF1dOyB0aGVuCiAgICAgICAgICAgIGVj\naG8gIk5vIGxhc3QgcmVsZWFzZSB0YWcgZm91bmQuIFNraXBwaW5nIHZlcnNp\nb24gdXBkYXRlLiIKICAgICAgICAgIGVsc2UKICAgICAgICAgICAgTEFTVF9W\nRVJTSU9OX1RPX1VQREFURT0kVkVSU0lPTgogICAgICAgICAgZmkKCiAgICAg\nICAgICBlY2hvICJVcGRhdGluZyBtYW5pZmVzdF9zdGFnaW5nL2NoYXJ0cy9z\nZWNyZXRzLXN0b3JlLWNzaS1kcml2ZXItcHJvdmlkZXItZ2NwL0NoYXJ0Lnlh\nbWwgd2l0aCB2ZXJzaW9uICRMQVNUX1ZFUlNJT05fVE9fVVBEQVRFIgogICAg\nICAgICAgCiAgICAgICAgICB5cSBlICIuYXBwVmVyc2lvbiA9IFwiJExBU1Rf\nVkVSU0lPTl9UT19VUERBVEVcIiIgLWkgbWFuaWZlc3Rfc3RhZ2luZy9jaGFy\ndHMvc2VjcmV0cy1zdG9yZS1jc2ktZHJpdmVyLXByb3ZpZGVyLWdjcC9DaGFy\ndC55YW1sCgogICAgICAgICAgZ2l0IGFkZCBtYW5pZmVzdF9zdGFnaW5nL2No\nYXJ0cy9zZWNyZXRzLXN0b3JlLWNzaS1kcml2ZXItcHJvdmlkZXItZ2NwL0No\nYXJ0LnlhbWwKICAgICAgICAgIGdpdCBjb21taXQgLW0gIlVwZGF0ZSBTdGFn\naW5nIENoYXJ0LnlhbWwgd2l0aCB2ZXJzaW9uICRMQVNUX1ZFUlNJT05fVE9f\nVVBEQVRFIgogICAgICAgICAgZ2l0IHB1c2gKICAgICAgICBlbnY6CiAgICAg\nICAgICBHSVRIVUJfVE9LRU46ICR7eyBzZWNyZXRzLkdJVEhVQl9UT0tFTiB9\nfQoKICAgICAgLSBuYW1lOiBFeHRyYWN0IGxhdGVzdCByZWxlYXNlIGltYWdl\nIGRpZ2VzdAogICAgICAgIGlkOiBleHRyYWN0X2xhdGVzdF9kaWdlc3QKICAg\nICAgICBydW46IHwKICAgICAgICAgICMgRXh0cmFjdCB0aGUgaW1hZ2UgZGln\nZXN0IGZyb20gdGhlIGBkZXBsb3kvcHJvdmlkZXItZ2NwLXBsdWdpbi55YW1s\nYCBmaWxlCiAgICAgICAgICBJTUFHRV9QQVRIPSQoeXEgZSAnLnNwZWMudGVt\ncGxhdGUuc3BlYy5jb250YWluZXJzW10uaW1hZ2UnIGRlcGxveS9wcm92aWRl\nci1nY3AtcGx1Z2luLnlhbWwpCiAgICAgICAgICBlY2hvICJEb2NrZXIgaW1h\nZ2Ugd2l0aCBkaWdlc3Q6ICRJTUFHRV9QQVRIIgoKICAgICAgICAgICMgU3Bs\naXQgdGhlIElNQUdFX1BBVEggdG8gZXh0cmFjdCB0aGUgZGlnZXN0IHBhcnQK\nICAgICAgICAgICMgRXhhbXBsZSBpbWFnZSBmb3JtYXQ6ICdnY3IuaW8vbXkt\ncHJvamVjdC9teS1pbWFnZUBzaGEyNTY6PGRpZ2VzdD4nCiAgICAgICAgICBE\nSUdFU1Q9JChlY2hvICRJTUFHRV9QQVRIIHwgYXdrIC1GJ0AnICd7cHJpbnQg\nJDJ9JykKICAgICAgICAgIGVjaG8gIkV4dHJhY3RlZCBkaWdlc3Q6ICRESUdF\nU1QiCgogICAgICAgICAgIyBTYXZlIHRoZSBkaWdlc3QgdG8gYW4gZW52aXJv\nbm1lbnQgdmFyaWFibGUKICAgICAgICAgIGVjaG8gIkRJR0VTVD0kRElHRVNU\nIiA+PiAkR0lUSFVCX0VOVgogICAgICAKICAgICAgLSBuYW1lOiBFeHRyYWN0\nIHNlY29uZCBsYXN0IHJlbGVhc2UgaW1hZ2UgZGlnZXN0CiAgICAgICAgaWQ6\nIGV4dHJhY3Rfc2Vjb25kX2xhc3RfZGlnZXN0CiAgICAgICAgcnVuOiB8CiAg\nICAgICAgICAjIEV4dHJhY3RpbmcgbGFzdCByZWxlYXNlIGltYWdlIGZyb20g\nc3RhZ2luZyBjaGFydCBhcyBpdCBzaG91bGQgYmUgcG9pbnRpbmcgdG8gbGFz\ndC9sYXRlc3QgcmVsZWFzZQogICAgICAgICAgZmlsZV9wYXRoPSJtYW5pZmVz\ndF9zdGFnaW5nL2NoYXJ0cy9zZWNyZXRzLXN0b3JlLWNzaS1kcml2ZXItcHJv\ndmlkZXItZ2NwL3ZhbHVlcy55YW1sIgogICAgICAgICAgCiAgICAgICAgICBp\nbWFnZV9oYXNoPSQoeXEgZSAnLmltYWdlLmhhc2gnICIkZmlsZV9wYXRoIiB8\nIHhhcmdzKQoKICAgICAgICAgIGlmIFtbIC16ICIkaW1hZ2VfaGFzaCIgXV07\nIHRoZW4KICAgICAgICAgICAgZWNobyAiSW52YWxpZC9FbXB0eSBkaWdlc3Qg\nZm91bmQ6ICRpbWFnZV9oYXNoIgogICAgICAgICAgICBleGl0IDEKICAgICAg\nICAgIGZpCgogICAgICAgICAgZWNobyAiRXh0cmFjdGVkIHNlY29uZCBsYXN0\nIHJlbGVhc2UgZGlnZXN0OiAkaW1hZ2VfaGFzaCIKICAgICAgICAgICMgRXhw\nb3J0IHRoZSBkaWdlc3QgYXMgYW4gZW52aXJvbm1lbnQgdmFyaWFibGUKICAg\nICAgICAgIGVjaG8gIlNFQ09ORF9MQVNUX1JFTEVBU0VfRElHRVNUPSRpbWFn\nZV9oYXNoIiA+PiAkR0lUSFVCX0VOVgogICAgICAKICAgICAgLSBuYW1lOiBV\ncGRhdGUgTWFpbiBIZWxtIENoYXJ0IHdpdGggTGFzdCBJbWFnZSBkaWdlc3Qg\ndmFsdWUKICAgICAgICBydW46IHwKICAgICAgICAgICMgRW5zdXJlIHRoZSBT\nRUNPTkRfTEFTVF9SRUxFQVNFX0RJR0VTVCBlbnZpcm9ubWVudCB2YXJpYWJs\nZSBpcyBzZXQKICAgICAgICAgIGlmIFsgLXogIiRTRUNPTkRfTEFTVF9SRUxF\nQVNFX0RJR0VTVCIgXTsgdGhlbgogICAgICAgICAgICBlY2hvICJTRUNPTkRf\nTEFTVF9SRUxFQVNFX0RJR0VTVCBlbnZpcm9ubWVudCB2YXJpYWJsZSBpcyBu\nb3Qgc2V0IgogICAgICAgICAgICBleGl0IDEKICAgICAgICAgIGZpCgogICAg\nICAgICAgIyBVc2UgeXEgdG8gdXBkYXRlIHRoZSBpbWFnZS5oYXNoIGZpZWxk\nIGluIHZhbHVlcy55YW1sIHdpdGggdGhlIERJR0VTVCB2YWx1ZQogICAgICAg\nICAgeXEgZXZhbCAiLmltYWdlLmhhc2ggPSBcIiRTRUNPTkRfTEFTVF9SRUxF\nQVNFX0RJR0VTVFwiIiAtaSBjaGFydHMvc2VjcmV0cy1zdG9yZS1jc2ktZHJp\ndmVyLXByb3ZpZGVyLWdjcC92YWx1ZXMueWFtbAoKICAgICAgICAgIGdpdCBh\nZGQgY2hhcnRzL3NlY3JldHMtc3RvcmUtY3NpLWRyaXZlci1wcm92aWRlci1n\nY3AvdmFsdWVzLnlhbWwKICAgICAgICAgIGdpdCBjb21taXQgLW0gIlVwZGF0\nZSBDaGFydC55YW1sIHdpdGggRElHRVNUICRTRUNPTkRfTEFTVF9SRUxFQVNF\nX0RJR0VTVCIKICAgICAgICAgIGdpdCBwdXNoCiAgICAgICAgZW52OgogICAg\nICAgICAgR0lUSFVCX1RPS0VOOiAke3sgc2VjcmV0cy5HSVRIVUJfVE9LRU4g\nfX0KICAgICAgICAKICAgICAgLSBuYW1lOiBVcGRhdGUgU3RhZ2luZyBIZWxt\nIENoYXJ0IHdpdGggTmV3IEltYWdlIGRpZ2VzdCB2YWx1ZQogICAgICAgIHJ1\nbjogfAogICAgICAgICAgIyBFbnN1cmUgdGhlIERJR0VTVCBlbnZpcm9ubWVu\ndCB2YXJpYWJsZSBpcyBzZXQKICAgICAgICAgIGlmIFsgLXogIiRESUdFU1Qi\nIF07IHRoZW4KICAgICAgICAgICAgZWNobyAiRElHRVNUIGVudmlyb25tZW50\nIHZhcmlhYmxlIGlzIG5vdCBzZXQiCiAgICAgICAgICAgIGV4aXQgMQogICAg\nICAgICAgZmkKCiAgICAgICAgICAjIFVzZSB5cSB0byB1cGRhdGUgdGhlIGlt\nYWdlLmhhc2ggZmllbGQgaW4gdmFsdWVzLnlhbWwgd2l0aCB0aGUgRElHRVNU\nIHZhbHVlCiAgICAgICAgICB5cSBldmFsICIuaW1hZ2UuaGFzaCA9IFwiJERJ\nR0VTVFwiIiAtaSBtYW5pZmVzdF9zdGFnaW5nL2NoYXJ0cy9zZWNyZXRzLXN0\nb3JlLWNzaS1kcml2ZXItcHJvdmlkZXItZ2NwL3ZhbHVlcy55YW1sCgogICAg\nICAgICAgZ2l0IGFkZCBtYW5pZmVzdF9zdGFnaW5nL2NoYXJ0cy9zZWNyZXRz\nLXN0b3JlLWNzaS1kcml2ZXItcHJvdmlkZXItZ2NwL3ZhbHVlcy55YW1sCiAg\nICAgICAgICBnaXQgY29tbWl0IC1tICJVcGRhdGUgbWFuaWZlc3Rfc3RhZ2lu\nZyB2YWx1ZS55YW1sIHdpdGggRElHRVNUICRESUdFU1QiCiAgICAgICAgICBn\naXQgcHVzaAogICAgICAgIGVudjoKICAgICAgICAgIEdJVEhVQl9UT0tFTjog\nJHt7IHNlY3JldHMuR0lUSFVCX1RPS0VOIH19Cg==\n",
+        "encoding": "base64",
+        "_links": {
+          "self": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/bump-chart-versions.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+          "git": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/1a9cc30ebc3eea7962b1a18578c548fa34d8d383",
+          "html": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/bump-chart-versions.yml"
+        }
+      }
+    },
+    {
+      "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/e2e.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+      "status": 200,
+      "body": {
+        "name": "e2e.yml",
+        "path": ".github/workflows/e2e.yml",
+        "sha": "fd2b0df20f9e283b141ce8aa8b6187dc5f4e85ef",
+        "size": 1799,
+        "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/e2e.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+        "html_url": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/e2e.yml",
+        "git_url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/fd2b0df20f9e283b141ce8aa8b6187dc5f4e85ef",
+        "download_url": "https://raw.githubusercontent.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/e2e.yml",
+        "type": "file",
+        "content": "IyBDb3B5cmlnaHQgMjAyNSBHb29nbGUgTExDCiMKIyBMaWNlbnNlZCB1bmRl\nciB0aGUgQXBhY2hlIExpY2Vuc2UsIFZlcnNpb24gMi4wICh0aGUgIkxpY2Vu\nc2UiKTsKIyB5b3UgbWF5IG5vdCB1c2UgdGhpcyBmaWxlIGV4Y2VwdCBpbiBj\nb21wbGlhbmNlIHdpdGggdGhlIExpY2Vuc2UuCiMgWW91IG1heSBvYnRhaW4g\nYSBjb3B5IG9mIHRoZSBMaWNlbnNlIGF0CiMKIyAgICAgIGh0dHA6Ly93d3cu\nYXBhY2hlLm9yZy9saWNlbnNlcy9MSUNFTlNFLTIuMAojCiMgVW5sZXNzIHJl\ncXVpcmVkIGJ5IGFwcGxpY2FibGUgbGF3IG9yIGFncmVlZCB0byBpbiB3cml0\naW5nLCBzb2Z0d2FyZQojIGRpc3RyaWJ1dGVkIHVuZGVyIHRoZSBMaWNlbnNl\nIGlzIGRpc3RyaWJ1dGVkIG9uIGFuICJBUyBJUyIgQkFTSVMsCiMgV0lUSE9V\nVCBXQVJSQU5USUVTIE9SIENPTkRJVElPTlMgT0YgQU5ZIEtJTkQsIGVpdGhl\nciBleHByZXNzIG9yIGltcGxpZWQuCiMgU2VlIHRoZSBMaWNlbnNlIGZvciB0\naGUgc3BlY2lmaWMgbGFuZ3VhZ2UgZ292ZXJuaW5nIHBlcm1pc3Npb25zIGFu\nZAojIGxpbWl0YXRpb25zIHVuZGVyIHRoZSBMaWNlbnNlLgoKbmFtZTogZTJl\nCm9uOgogIHB1c2g6CiAgICBicmFuY2hlczoKICAgICAgLSBtYWluCiAgcHVs\nbF9yZXF1ZXN0OgogICAgYnJhbmNoZXM6CiAgICAgIC0gbWFpbgogIHdvcmtm\nbG93X2Rpc3BhdGNoOgogIHNjaGVkdWxlOgogICAgIyBydW4gZGFpbHkgQCAx\nNDozMCBVVEMgYWdhaW5zdCB0aGUgZGVmYXVsdCBicmFuY2ggKG1haW4pCiAg\nICAtIGNyb246ICIzMCAxNCAqICogKiIKCmpvYnM6CiAgZTJlLXRlc3Q6CiAg\nICBydW5zLW9uOiB1YnVudHUtbGF0ZXN0CiAgICBwZXJtaXNzaW9uczoKICAg\nICAgY29udGVudHM6IHJlYWQKICAgICAgaWQtdG9rZW46IHdyaXRlCiAgICBl\nbnZpcm9ubWVudDoKICAgICAgbmFtZTogZTJlLXRlc3QKICAgIHRpbWVvdXQt\nbWludXRlczogOTAKICAgIHN0ZXBzOgogICAgICAtIHVzZXM6IGFjdGlvbnMv\nY2hlY2tvdXRAMTFkNTk2MGEzMjY3NTBkNTgzODA3OGUzNmNmMzhiODVhZjY3\nNzI2MiAjIHY0CiAgICAgIC0gbmFtZTogIkF1dGhlbnRpY2F0ZSB0byBHb29n\nbGUgQ2xvdWQgdmlhIFdvcmtsb2FkIElkZW50aXR5IgogICAgICAgIHVzZXM6\nIGdvb2dsZS1naXRodWItYWN0aW9ucy9hdXRoQGMyMDBmMzY5MWQ4M2I0MWJm\nOWJiZDg2Mzg5OTdhNDYyNTkyOTM3ZWQgIyB2MgogICAgICAgIHdpdGg6CiAg\nICAgICAgICB3b3JrbG9hZF9pZGVudGl0eV9wcm92aWRlcjogJ3Byb2plY3Rz\nLzczNTQ2MzEwMzM0Mi9sb2NhdGlvbnMvZ2xvYmFsL3dvcmtsb2FkSWRlbnRp\ndHlQb29scy9naXRodWItcG9vbC9wcm92aWRlcnMvZ2l0aHViLXByb3ZpZGVy\nJwogICAgICAgICAgc2VydmljZV9hY2NvdW50OiAnZ2gtZTJlLXJ1bm5lckBz\nZWNyZXRtYW5hZ2VyLWNzaS1idWlsZC5pYW0uZ3NlcnZpY2VhY2NvdW50LmNv\nbScKICAgICAgLSB1c2VzOiBnb29nbGUtZ2l0aHViLWFjdGlvbnMvc2V0dXAt\nZ2Nsb3VkQGU0MjdhZDhhMzRmODY3NmVkZjQ3Y2Y3ZDc5MjU0OTlhZGYzZWI3\nNGYgIyB2MgogICAgICAgIHdpdGg6CiAgICAgICAgICBwcm9qZWN0X2lkOiAi\nc2VjcmV0bWFuYWdlci1jc2ktYnVpbGQiCiAgICAgICAgICBpbnN0YWxsX2Nv\nbXBvbmVudHM6ICdna2UtZ2Nsb3VkLWF1dGgtcGx1Z2luJwogICAgICAtIG5h\nbWU6IFRlc3QKICAgICAgICBydW46IHwKICAgICAgICAgIHRlc3QvaW5mcmEv\ncnVubmVyLnNoCiAgICAgICAgZW52OgogICAgICAgICAgR0tFX1ZFUlNJT046\nIFJBUElECiAgICAgICAgICBTRUNSRVRfU1RPUkVfVkVSU0lPTjogbWFpbgo=\n",
+        "encoding": "base64",
+        "_links": {
+          "self": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/e2e.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+          "git": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/fd2b0df20f9e283b141ce8aa8b6187dc5f4e85ef",
+          "html": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/e2e.yml"
+        }
+      }
+    },
+    {
+      "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/test.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+      "status": 200,
+      "body": {
+        "name": "test.yml",
+        "path": ".github/workflows/test.yml",
+        "sha": "220ddbade0801c77159b0b44481e8ac267869328",
+        "size": 1292,
+        "url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/test.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+        "html_url": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/test.yml",
+        "git_url": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/220ddbade0801c77159b0b44481e8ac267869328",
+        "download_url": "https://raw.githubusercontent.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/test.yml",
+        "type": "file",
+        "content": "IyBDb3B5cmlnaHQgMjAyNSBHb29nbGUgTExDCiMKIyBMaWNlbnNlZCB1bmRl\nciB0aGUgQXBhY2hlIExpY2Vuc2UsIFZlcnNpb24gMi4wICh0aGUgIkxpY2Vu\nc2UiKTsKIyB5b3UgbWF5IG5vdCB1c2UgdGhpcyBmaWxlIGV4Y2VwdCBpbiBj\nb21wbGlhbmNlIHdpdGggdGhlIExpY2Vuc2UuCiMgWW91IG1heSBvYnRhaW4g\nYSBjb3B5IG9mIHRoZSBMaWNlbnNlIGF0CiMKIyAgICAgIGh0dHA6Ly93d3cu\nYXBhY2hlLm9yZy9saWNlbnNlcy9MSUNFTlNFLTIuMAojCiMgVW5sZXNzIHJl\ncXVpcmVkIGJ5IGFwcGxpY2FibGUgbGF3IG9yIGFncmVlZCB0byBpbiB3cml0\naW5nLCBzb2Z0d2FyZQojIGRpc3RyaWJ1dGVkIHVuZGVyIHRoZSBMaWNlbnNl\nIGlzIGRpc3RyaWJ1dGVkIG9uIGFuICJBUyBJUyIgQkFTSVMsCiMgV0lUSE9V\nVCBXQVJSQU5USUVTIE9SIENPTkRJVElPTlMgT0YgQU5ZIEtJTkQsIGVpdGhl\nciBleHByZXNzIG9yIGltcGxpZWQuCiMgU2VlIHRoZSBMaWNlbnNlIGZvciB0\naGUgc3BlY2lmaWMgbGFuZ3VhZ2UgZ292ZXJuaW5nIHBlcm1pc3Npb25zIGFu\nZAojIGxpbWl0YXRpb25zIHVuZGVyIHRoZSBMaWNlbnNlLgoKbmFtZTogdGVz\ndApvbjoKICBwdXNoOgogICAgYnJhbmNoZXM6CiAgICAgIC0gbWFpbgogIHB1\nbGxfcmVxdWVzdDoKICAgIGJyYW5jaGVzOgogICAgICAtIG1haW4KCmpvYnM6\nCiAgdGVzdDoKICAgIHN0cmF0ZWd5OgogICAgICBmYWlsLWZhc3Q6IGZhbHNl\nCiAgICAgIG1hdHJpeDoKICAgICAgICBvczogW3VidW50dS1sYXRlc3QsIG1h\nY29zLWxhdGVzdCwgd2luZG93cy1sYXRlc3RdCgogICAgbmFtZTogdW5pdAog\nICAgcnVucy1vbjogJHt7IG1hdHJpeC5vcyB9fQoKICAgIHN0ZXBzOgogICAg\nICAtIHVzZXM6IGFjdGlvbnMvY2hlY2tvdXRAdjMKICAgICAgLSB1c2VzOiBh\nY3Rpb25zL3NldHVwLWdvQHY0CiAgICAgICAgd2l0aDoKICAgICAgICAgIGdv\nLXZlcnNpb246ICIxLjI2IgogICAgICAtIG5hbWU6IEdldCBkZXBlbmRlbmNp\nZXMKICAgICAgICBydW46IGdvIGdldCAtdCAuLy4uLgogICAgICAtIG5hbWU6\nIExpbnQKICAgICAgICBydW46IG1ha2UgZm10Y2hlY2sgc3RhdGljY2hlY2sg\nc3BlbGxjaGVjayBsaWNlbnNlc2NoZWNrCiAgICAgICAgaWY6ICR7eyBtYXRy\naXgub3MgIT0gJ3dpbmRvd3MtbGF0ZXN0JyB9fQogICAgICAtIG5hbWU6IGdv\nc2VjCiAgICAgICAgaWY6ICR7eyBtYXRyaXgub3MgPT0gJ3VidW50dS1sYXRl\nc3QnIH19CiAgICAgICAgcnVuOiBtYWtlIGdvc2VjCiAgICAgIC0gbmFtZTog\nVGVzdAogICAgICAgIHJ1bjogbWFrZSB0ZXN0LWFjYwo=\n",
+        "encoding": "base64",
+        "_links": {
+          "self": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/contents/.github/workflows/test.yml?ref=31170f58a4e99a54723a9f7e1c2dba413e326571",
+          "git": "https://api.github.com/repos/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/git/blobs/220ddbade0801c77159b0b44481e8ac267869328",
+          "html": "https://github.com/GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp/blob/31170f58a4e99a54723a9f7e1c2dba413e326571/.github/workflows/test.yml"
+        }
+      }
+    }
+  ]
+}
