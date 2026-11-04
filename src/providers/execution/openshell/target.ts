@@ -90,6 +90,8 @@ export function openshellTarget(options: { parent: string; executablePath: strin
       if (attempted || closing || closed) throw Error('OpenShell provisioning session already used');
       attempted = true;
       const checked = validateWorkerResources(resources);
+      if (checked.diskGiB !== undefined) throw Error('Bounded disk workspace is unsupported by this OpenShell adapter');
+      if (checked.userNamespaces) throw Error('Nested user namespaces are unsupported by this OpenShell adapter');
       operations.start(checked.timeoutSeconds, context);
       const address = gatewayAddress(options.host?.gatewayAddress);
       if (realpathSync(parent) !== parent || statSync(parent).uid !== process.getuid?.()) throw Error('Unsafe OpenShell provisioning parent');

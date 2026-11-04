@@ -1,3 +1,4 @@
+import { retainWorkerNetwork } from './ancillaries.js';
 import { isIPv4 } from 'node:net';
 import { readFileSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
@@ -22,6 +23,7 @@ export async function isolateWorkerNetwork(worker: ProvisionedWorker, options: {
     network.Internal !== true || network.EnableIPv6 !== false || network.Driver !== 'bridge' ||
     typeof address !== 'string' || !isIPv4(address) || (network.Options?.['com.docker.network.bridge.name'] &&
       network.Options['com.docker.network.bridge.name'] !== bridge) || Object.keys(network.Containers ?? {}).length) throw Error('Private worker network verification failed');
+  retainWorkerNetwork(worker.directory, { owner: worker.owner, purpose: 'isolation', bridge, networkId: worker.networkId });
   const tag = `agent-runtime:${worker.owner}`;
   const installed: Array<{ executable: string; chain: string; rule: string[] }> = [];
   let joined = false;

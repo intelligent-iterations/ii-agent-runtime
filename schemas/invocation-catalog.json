@@ -1,0 +1,222 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "agents",
+    "tools",
+    "grants"
+  ],
+  "properties": {
+    "agents": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "invokers"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+          },
+          "invokers": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "event",
+                "match"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+                },
+                "event": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+                },
+                "match": {
+                  "type": "object",
+                  "maxProperties": 64,
+                  "propertyNames": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+                  },
+                  "additionalProperties": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 256,
+                    "uniqueItems": true,
+                    "items": {
+                      "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }]
+                    }
+                  }
+                },
+                "conditions": {
+                  "type": "array",
+                  "maxItems": 128,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "tools": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+          },
+          "effects": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "event",
+                "fields"
+              ],
+              "properties": {
+                "event": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+                },
+                "fields": {
+                  "type": "object",
+                  "maxProperties": 64,
+                  "propertyNames": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+                  },
+                  "additionalProperties": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "input"
+                        ],
+                        "properties": {
+                          "input": {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "values"
+                        ],
+                        "properties": {
+                          "values": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 256,
+                            "uniqueItems": true,
+                            "items": {
+                              "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }]
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "grants": {
+      "type": "array",
+      "maxItems": 512,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "subject",
+          "tool",
+          "resources",
+          "arguments"
+        ],
+        "properties": {
+          "subject": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+          },
+          "tool": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+          },
+          "resources": {
+            "type": "object",
+            "maxProperties": 64,
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+            },
+            "additionalProperties": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 256,
+              "uniqueItems": true,
+              "items": {
+                "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }]
+              }
+            }
+          },
+          "arguments": {
+            "type": "object",
+            "maxProperties": 64,
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+            },
+            "additionalProperties": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 256,
+              "uniqueItems": true,
+              "items": {
+                "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }]
+              }
+            }
+          },
+          "conditions": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -502,3 +502,16 @@ removed. All six supported VM providers have independent lifecycle evidence. See
 commands and limitations. These tests do not prove live-cloud IAM, guest boot or
 complete API equivalence. Local Docker/SSH execution is separate evidence, and
 managed-container API emulation cannot validate a VM adapter.
+
+### Declared invokers
+
+Declare what activates an agent and analyze indirect authority through tool effects.
+The [subagent handoff example](example/subagent-handoff) declares invokers, runs the
+analysis and routes a handoff with the same declaration. Declarations are user-owned
+metadata; analysis produces warnings and does not install triggers.
+
+### Command-line output
+
+The runtime CLI supports command help and text or JSON output. Applications can
+format permission preflight reports through the package's `/cli` export. Run
+`ii-agent-runtime --help` for the commands.

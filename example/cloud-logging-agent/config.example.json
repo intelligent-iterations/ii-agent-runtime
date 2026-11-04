@@ -1,0 +1,10 @@
+{
+  "project": "YOUR_PROJECT_ID",
+  "resourceType": "cloud_function",
+  "resource": "YOUR_FUNCTION_OR_SERVICE_NAME",
+  "execution": "local-linux-docker",
+  "image": "node:22-bookworm@sha256:18a6d90fd60542269850c80ca03b29b1d9b14d6b221ac7ee8e35b0d33ef904bd",
+  "model": "gpt-5.6-terra",
+  "inputMicrousdPerMillionTokens": 2000000,
+  "outputMicrousdPerMillionTokens": 12000000
+}

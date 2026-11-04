@@ -22,7 +22,7 @@ export class ProcessFailure extends Error {
 /** No shell, inherited credentials, raw child errors, or automatic retries. */
 export const runTrustedProcess: ProcessRunner = async request => new Promise((resolve, reject) => {
   if (request.signal?.aborted) { reject(new ProcessFailure('canceled', 'Process canceled')); return; }
-  if (!Number.isSafeInteger(request.timeoutMs) || request.timeoutMs < 1 || request.timeoutMs > 3600000 ||
+  if (!Number.isSafeInteger(request.timeoutMs) || request.timeoutMs < 1 || request.timeoutMs > 7200000 ||
     !Number.isSafeInteger(request.maxOutputBytes) || request.maxOutputBytes < 1 || request.maxOutputBytes > 10485760) {
     reject(Error('Invalid process limits')); return;
   }

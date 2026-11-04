@@ -1,0 +1,6 @@
+{
+  "name": "cloud-logging-codex-worker",
+  "private": true,
+  "type": "module",
+  "dependencies": { "@openai/codex": "0.159.2", "@modelcontextprotocol/sdk": "1.32.2" }
+}

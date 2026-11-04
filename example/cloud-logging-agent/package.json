@@ -1,0 +1,30 @@
+{
+  "name": "cloud-logging-agent-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.16"
+  },
+  "scripts": {
+    "build": "tsc && node scripts/copy-worker.mjs",
+    "check": "tsc --noEmit && tsx --test test/*.test.ts",
+    "demo": "tsx scripts/demo.ts",
+    "start": "tsx src/cli.ts",
+    "start:linux": "node scripts/linux-host.mjs dist/src/cli.js",
+    "test:emulator": "tsx scripts/emulator.ts",
+    "test:package": "node scripts/standalone.mjs",
+    "test:isolation": "tsx scripts/isolation.ts",
+    "test:isolation:linux": "node scripts/linux-host.mjs dist/scripts/isolation.js"
+  },
+  "dependencies": {
+    "@intelligent-iterations/ii-agent-runtime": "file:../..",
+    "google-auth-library": "11.3.1"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@types/node": "22.20.4",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

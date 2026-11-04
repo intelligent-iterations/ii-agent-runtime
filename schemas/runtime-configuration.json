@@ -6,6 +6,55 @@
   "additionalProperties": false,
   "required": ["schemaVersion", "id", "revision", "instructions", "harness", "environment", "source", "limits"],
   "properties": {
+    "invokers": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "event",
+          "match"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+          },
+          "event": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+          },
+          "match": {
+            "type": "object",
+            "maxProperties": 64,
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+            },
+            "additionalProperties": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 256,
+              "uniqueItems": true,
+              "items": {
+                "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }]
+              }
+            }
+          },
+          "conditions": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,255}$"
+            }
+          }
+        }
+      },
+      "description": "User-declared activation metadata for advisory authority analysis. Does not install or enforce triggers."
+    },
     "schemaVersion": { "const": 2 },
     "id": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,99}$" },
     "revision": { "type": "string", "minLength": 1, "maxLength": 128 },
@@ -107,6 +156,8 @@
         "image": { "type": "string", "maxLength": 512, "pattern": "^[a-zA-Z0-9][a-zA-Z0-9./:_-]*@sha256:[a-f0-9]{64}$" },
         "cpu": { "type": "integer", "minimum": 1, "maximum": 4 },
         "memoryMiB": { "type": "integer", "minimum": 256, "maximum": 8192 },
+        "diskGiB": { "description": "Bounded disk-backed workspace capacity. Targets without enforceable storage reject this requirement.", "type": "integer", "minimum": 1, "maximum": 80 },
+        "userNamespaces": { "description": "Require nested unprivileged namespace support for an external harness sandbox. Unsupported targets fail closed.", "type": "boolean" },
         "setup": {
           "description": "Setup execution settings before agent credentials are available. The caller selects the commands to execute.",
           "type": "object", "additionalProperties": false,
@@ -116,6 +167,20 @@
             "timeoutMinutes": { "type": "integer", "minimum": 1, "maximum": 30 },
             "commands": { "type": "array", "minItems": 1, "maxItems": 10, "items": { "type": "string", "minLength": 1, "maxLength": 500, "pattern": "^[^\\u0000\\r\\n]+$" } }
           }
+        }
+      }
+    },
+    "credentialBindings": {
+      "description": "Approved credential references and trusted assignments; values remain with the selected provider.",
+      "type": "array", "maxItems": 128,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["provider", "resource", "key", "assignment"],
+        "properties": {
+          "provider": { "type": "string", "minLength": 1, "maxLength": 4096 },
+          "resource": { "type": "string", "minLength": 1, "maxLength": 4096 },
+          "key": { "type": "string", "minLength": 1, "maxLength": 4096 },
+          "assignment": { "type": "string", "minLength": 1, "maxLength": 4096 }
         }
       }
     },
@@ -154,7 +219,7 @@
         "maxConcurrent": { "type": "integer", "minimum": 1, "maximum": 100 },
         "maxRunsPerSubject": { "description": "Maximum runs per caller-supplied subject identifier.", "type": "integer", "minimum": 1, "maximum": 100 },
         "maxRunsPerMonth": { "type": "integer", "minimum": 1, "maximum": 100000 },
-        "timeoutMinutes": { "description": "At most 55, so a run ends before its one-hour source tokens expire.", "type": "integer", "minimum": 1, "maximum": 55 },
+        "timeoutMinutes": { "description": "Maximum wall-clock budget for one run. Credential providers independently enforce grant expiry.", "type": "integer", "minimum": 1, "maximum": 120 },
         "overheadMinutes": { "description": "Minutes the host spends around each run (start-up, evidence upload, teardown), reserved with the run. Defaults to 0.", "type": "integer", "minimum": 0, "maximum": 60 },
         "maxModelRequests": { "type": "integer", "minimum": 1, "maximum": 1000 },
         "maxInputTokensPerRequest": { "type": "integer", "minimum": 1, "maximum": 1000000 },

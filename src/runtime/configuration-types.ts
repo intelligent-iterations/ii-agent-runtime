@@ -4,6 +4,26 @@ export type Repository = string;
 export type Cost = number;
 
 export interface RuntimeConfiguration {
+  /**
+   * User-declared activation metadata for advisory authority analysis. Does not install or enforce triggers.
+   *
+   * @maxItems 128
+   */
+  invokers?: {
+    id: string;
+    event: string;
+    match: {
+      /**
+       * @minItems 1
+       * @maxItems 256
+       */
+      [k: string]: (string | number | boolean)[];
+    };
+    /**
+     * @maxItems 128
+     */
+    conditions?: string[];
+  }[];
   schemaVersion: 2;
   id: string;
   revision: string;
@@ -44,6 +64,14 @@ export interface RuntimeConfiguration {
     cpu: number;
     memoryMiB: number;
     /**
+     * Bounded disk-backed workspace capacity. Targets without enforceable storage reject this requirement.
+     */
+    diskGiB?: number;
+    /**
+     * Require nested unprivileged namespace support for an external harness sandbox. Unsupported targets fail closed.
+     */
+    userNamespaces?: boolean;
+    /**
      * Setup execution settings before agent credentials are available. The caller selects the commands to execute.
      */
     setup?: {
@@ -56,6 +84,17 @@ export interface RuntimeConfiguration {
       commands?: string[];
     };
   };
+  /**
+   * Approved credential references and trusted assignments; values remain with the selected provider.
+   *
+   * @maxItems 128
+   */
+  credentialBindings?: {
+    provider: string;
+    resource: string;
+    key: string;
+    assignment: string;
+  }[];
   /**
    * Where the code lives. Selects the source host adapter; github is a GitHub App installation that issues short-lived, repository-scoped tokens. permissions is what the agent's token may do in the repository; it defaults to contents: write, for repository writes.
    */
@@ -86,7 +125,7 @@ export interface RuntimeConfiguration {
     maxRunsPerSubject: number;
     maxRunsPerMonth: number;
     /**
-     * At most 55, so a run ends before its one-hour source tokens expire.
+     * Maximum wall-clock budget for one run. Credential providers independently enforce grant expiry.
      */
     timeoutMinutes: number;
     /**

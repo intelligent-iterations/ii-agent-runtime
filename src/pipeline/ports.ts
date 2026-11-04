@@ -16,11 +16,22 @@ export interface WorkerCommand {
   signal?: AbortSignal;
 }
 export type WorkerCommandRunner = (request: WorkerCommand) => Promise<string>;
+/** A duplex command's bounded transport; target.close() owns sandbox cleanup. */
+export interface WorkerSession {
+  readonly output: AsyncIterable<Uint8Array>;
+  readonly completion: Promise<{ exitCode: number }>;
+  write(input: Uint8Array): Promise<void>;
+  end(): void;
+  close(): Promise<void>;
+}
+export interface WorkerSessionCommand extends Omit<WorkerCommand, 'input'> { maxInputBytes: number }
 export interface Worker {
   /** Absolute writable root provided by the target. */
   readonly workspace: string;
   /** Runs as the unprivileged workload identity, with input on stdin and bounded output. */
   run: WorkerCommandRunner;
+  /** Optional bounded duplex transport. Unsupported targets must not emulate it with a host shell. */
+  open?(request: WorkerSessionCommand): Promise<WorkerSession>;
   /** Copies the supplied directory into the worker's workspace. */
   load(directory: string): Promise<void>;
   /** Installs dependencies with internet access. Runs before workload credentials are issued, and returns with setup networking sealed. */
@@ -28,7 +39,7 @@ export interface Worker {
   isolate(): Promise<Isolation>;
 }
 /** Agent resources enforced by the explicitly selected execution target. */
-export interface WorkerResources { image: string; cpu: number; memoryMiB: number; timeoutSeconds: number; configurationDigest: string }
+export interface WorkerResources { diskGiB?: number; userNamespaces?: boolean; image: string; cpu: number; memoryMiB: number; timeoutSeconds: number; configurationDigest: string }
 /** The caller's Run deadline and cancellation apply to acquisition, not final cleanup. */
 export interface ExecutionContext { deadlineMs: number; signal: AbortSignal }
 export interface ExecutionTarget { provision(resources: WorkerResources, context?: ExecutionContext): Promise<Worker>; close(): Promise<void> }

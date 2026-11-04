@@ -1,0 +1,295 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecutionInputs",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "configuration": {
+      "$ref": "runtime-configuration.json"
+    },
+    "prompt": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "inline"
+            },
+            "text": {
+              "type": "string",
+              "maxLength": 1048576
+            }
+          },
+          "required": [
+            "kind",
+            "text"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "artifact"
+            },
+            "artifact": {
+              "$ref": "#/definitions/artifact"
+            }
+          },
+          "required": [
+            "kind",
+            "artifact"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "unavailable"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          },
+          "required": [
+            "kind",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "repositories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "repository": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "commit": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+          },
+          "localChanges": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/artifact"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "repository",
+          "commit",
+          "localChanges"
+        ]
+      },
+      "maxItems": 128
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "artifact": {
+            "$ref": "#/definitions/artifact"
+          }
+        },
+        "required": [
+          "role",
+          "artifact"
+        ]
+      },
+      "maxItems": 128
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "name",
+          "version"
+        ]
+      },
+      "maxItems": 128
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "identity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
+      "required": [
+        "provider",
+        "identity",
+        "parameters"
+      ]
+    },
+    "environment": {
+      "type": "object",
+      "maxProperties": 128,
+      "propertyNames": {
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 16384
+      }
+    },
+    "credentials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "provider": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "resource": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "assignment": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "provider",
+          "resource",
+          "key",
+          "assignment"
+        ]
+      },
+      "maxItems": 128
+    },
+    "coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "field": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "field",
+          "reason"
+        ]
+      },
+      "maxItems": 128
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "configuration",
+    "prompt",
+    "repositories",
+    "artifacts",
+    "components",
+    "model",
+    "environment",
+    "credentials",
+    "coverage"
+  ],
+  "definitions": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "reference",
+        "digest",
+        "bytes"
+      ]
+    }
+  },
+  "$id": "https://intelligentiterations.com/schemas/execution-inputs.json"
+}

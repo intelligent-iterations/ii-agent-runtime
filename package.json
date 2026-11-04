@@ -29,6 +29,10 @@
   "type": "module",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./tools": {
+      "types": "./dist/providers/tools/index.d.ts",
+      "import": "./dist/providers/tools/index.js"
+    },
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
@@ -46,9 +50,14 @@
       "types": "./dist/providers/source/github/index.d.ts",
       "import": "./dist/providers/source/github/index.js"
     },
+    "./schemas/execution-inputs.json": "./schemas/execution-inputs.json",
     "./deployment": {
       "types": "./dist/deployment/index.d.ts",
       "import": "./dist/deployment/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli/presentation.d.ts",
+      "import": "./dist/cli/presentation.js"
     }
   },
   "files": [

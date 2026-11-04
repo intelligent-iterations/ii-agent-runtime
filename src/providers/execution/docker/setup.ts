@@ -1,3 +1,4 @@
+import { retainWorkerNetwork } from './ancillaries.js';
 import { isIPv4 } from 'node:net';
 import { readFileSync, realpathSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -60,6 +61,7 @@ export async function runWorkerSetup(worker: ProvisionedWorker, commands: string
     await run('sudo', ['--non-interactive', executable, '-w', '10', '-I', chain, '1', ...args]);
     await run('sudo', ['--non-interactive', executable, '-w', '10', '-C', chain, ...args]);
   };
+  retainWorkerNetwork(worker.directory, { owner: worker.owner, purpose: 'setup', bridge });
   const started = Date.now();
   let result: SetupResult | undefined;
   const failures: unknown[] = [];

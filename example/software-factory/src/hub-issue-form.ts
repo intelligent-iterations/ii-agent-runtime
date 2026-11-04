@@ -6,7 +6,7 @@ import type { IssueRequestReader } from './github-issue.js';
  * Repository heading, an HTML comment) is refused. A bare name means the hub's own organization.
  */
 export function parseTargetRepository(body: unknown, organization: string): string | undefined {
-  if (typeof body !== 'string' || /<!--/.test(body) || (body.match(/^[ \t]*#{1,6}[ \t]*Repository\b/gim) ?? []).length !== 1) return undefined;
+  if (typeof body !== 'string' || body.includes('<!--') || (body.match(/^[ \t]*#{1,6}[ \t]*Repository\b/gim) ?? []).length !== 1) return undefined;
   const match = /^### Repository[ \t]*\r?\n(?:[ \t]*\r?\n)*[ \t]*([^\r\n<>]+?)[ \t]*\r?\n(?:[ \t]*\r?\n)*### (?:Pull request into|Task)[ \t]*(?:\r?\n|$)/.exec(body);
   if (!match) return undefined;
   const value = match[1]!.replace(/^https:\/\/github\.com\//i, '').replace(/\.git$/, '').toLowerCase();
