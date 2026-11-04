@@ -20,11 +20,13 @@
    ergonomics.
 7. **Implementation freedom:** grouping, query bounds, example CLI and credential
    sourcing are consumer choices. They cannot widen a runtime grant.
-8. **Evidence:** unit/gateway fixtures establish request semantics; floci-gcp
-   establishes Logging API request and response compatibility (it does not apply
-   every filter clause, so the adapter re-checks scope locally); isolated Linux
-   probes establish tested network behavior. Only own-credential live runs
-   establish Google IAM and live data behavior.
+8. **Evidence:** the CLI and demo always call Google; tests run the same code with
+   its Google requests intercepted. Unit/gateway fixtures establish request
+   semantics; floci-gcp, reached only through that interception, establishes
+   Logging API request and response compatibility (it does not apply every filter
+   clause, so the adapter re-checks scope locally); isolated Linux probes establish
+   tested network behavior. Only own-credential live runs establish Google IAM and
+   live data behavior.
 9. **Learnings:** the example uses only existing runtime seams (exact grants,
    credential resolution, the HTTP gateway, model mediation and the Docker/OpenTofu
    target). No runtime architectural change was required for this consumer.

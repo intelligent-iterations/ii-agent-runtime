@@ -11,6 +11,8 @@ export const PROJECT_PATTERN = '^[a-z][a-z0-9-]{4,28}[a-z0-9]$';
 export const RESOURCE_PATTERN = '^[A-Za-z0-9][A-Za-z0-9_-]{0,62}$';
 /** A log view inside the granted project, for identities that may read only that view. */
 export const LOG_VIEW_PATTERN = '^locations/[a-z0-9-]{1,63}/buckets/[A-Za-z0-9_-]{1,100}/views/[A-Za-z0-9_-]{1,100}$';
+/** The only Cloud Logging endpoint this adapter calls. */
+export const LOGGING_API = 'https://logging.googleapis.com';
 const ERROR_SEVERITIES = new Set(['ERROR', 'CRITICAL', 'ALERT', 'EMERGENCY']);
 const MAX_RESPONSE_BYTES = 8 * 1024 * 1024;
 
@@ -121,7 +123,9 @@ async function readJson(response: Response): Promise<{ entries?: LogEntry[]; nex
  * a filter, endpoint, resource type or other project. Grants pin `project` and `resource` exactly.
  */
 export interface AdapterOptions {
-  resourceType: ResourceType; endpoint?: string; now?: () => number; fetch?: typeof fetch;
+  resourceType: ResourceType; now?: () => number;
+  /** Defaults to the global fetch. Tests inject one that redirects these Google calls to an emulator. */
+  fetch?: typeof fetch;
   /** Trusted configuration, never agent input: read through this view, e.g. `locations/global/buckets/_Default/views/api-errors`. */
   logView?: string;
   /** Waits before retrying a transient Google error (HTTP 429, 500, 503); default 1 s then 3 s. */
@@ -140,7 +144,6 @@ export function cloudLoggingOperation(options: AdapterOptions): ToolOperation {
   if (!Object.hasOwn(RESOURCE_TYPES, options.resourceType)) throw Error('Unsupported resource type');
   if (options.logView !== undefined && !new RegExp(LOG_VIEW_PATTERN).test(options.logView)) throw Error('Invalid log view');
   const label = RESOURCE_TYPES[options.resourceType];
-  const base = (options.endpoint ?? 'https://logging.googleapis.com').replace(/\/+$/, '');
   const request = options.fetch ?? fetch;
   const operation: ToolOperation = {
     provider: 'gcp', id: 'logging.entries.list',
@@ -167,7 +170,7 @@ export function cloudLoggingOperation(options: AdapterOptions): ToolOperation {
         // entries.list is a read: retry Google's transient errors briefly, as its API guidance recommends.
         let response: Response;
         for (let attempt = 0; ; attempt++) {
-          response = await request(`${base}/v2/entries:list`, { method: 'POST', redirect: 'error', signal: context.signal,
+          response = await request(`${LOGGING_API}/v2/entries:list`, { method: 'POST', redirect: 'error', signal: context.signal,
             headers: { authorization: `Bearer ${credential.values.accessToken}`, 'content-type': 'application/json' }, body });
           const delay = (options.retryDelaysMs ?? [1000, 3000])[attempt];
           if (response.ok || !TRANSIENT.has(response.status) || delay === undefined) break;

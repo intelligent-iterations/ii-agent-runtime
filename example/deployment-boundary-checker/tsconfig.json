@@ -4,5 +4,5 @@
     "strict": true, "esModuleInterop": true, "skipLibCheck": true,
     "outDir": "dist", "rootDir": "."
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts", "agents/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts", "agents/**/*.ts", "fixtures/**/*.ts"]
 }

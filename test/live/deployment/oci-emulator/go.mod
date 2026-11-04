@@ -1,6 +1,6 @@
 module ii-runtime-oci-emulator-test
 
-go 1.26.0
+go 1.26.10
 
 require github.com/stackshy/cloudemu/v2 v2.0.0-20261024054820-a624a9526f7b
 
@@ -22,8 +22,8 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	golang.org/x/net v0.57.0 // indirect
-	golang.org/x/text v0.40.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect

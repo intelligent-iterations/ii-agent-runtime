@@ -1,6 +1,6 @@
 // npm run test:package: the path a newcomer takes when they copy this folder into their own repository.
 // It packs the runtime this example depends on, copies the example outside the repository, installs the
-// runtime from that tarball, and runs the checks, build, CLI and demo in the copy.
+// runtime from that tarball, and runs the checks, build, CLI and the demo test in the copy.
 import { cpSync, existsSync, lstatSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve, sep } from 'node:path';
@@ -42,8 +42,8 @@ try {
   assert.ok(!lstatSync(join(destination, 'node_modules', runtimeName)).isSymbolicLink(), 'the copy must use an installed runtime, not a link');
   for (const args of [['run', 'check'], ['run', 'build']]) run('npm', args, destination);
   run('node', ['dist/src/cli.js', '--help'], destination);
-  // The newcomer's first run, from the copy: Docker and the upstream emulator only.
-  const demo = execFileSync('npm', ['run', 'demo'], { cwd: destination, env, encoding: 'utf8', timeout: 600000 });
-  assert.match(demo, /returned 7 in-scope errors in 4 groups and denied another service/);
-  console.log('Copied example with the packed runtime: install, checks, build, CLI help and demo passed.');
+  // The demo's own code, from the copy, with its Google calls redirected to the upstream emulator (Docker only).
+  const demo = execFileSync('npm', ['run', 'test:demo'], { cwd: destination, env, encoding: 'utf8', timeout: 600000 });
+  assert.match(demo, /7 ERROR-or-higher entries in 4 groups\./);
+  console.log('Copied example with the packed runtime: install, checks, build, CLI help and the demo test passed.');
 } finally { rmSync(temp, { recursive: true, force: true }); }

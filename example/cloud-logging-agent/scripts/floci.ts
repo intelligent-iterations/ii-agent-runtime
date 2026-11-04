@@ -1,4 +1,4 @@
-// Shared by `npm run demo` and `npm run test:emulator`: start, seed and remove the upstream floci-gcp emulator.
+// For npm run test:demo only: start, seed and remove the upstream floci-gcp emulator. The CLI never uses it.
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import type { LogEntry } from '../src/cloud-logging.js';

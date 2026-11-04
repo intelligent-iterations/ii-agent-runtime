@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { LiveModelConfig } from './model.js';
 import { PRIVATE, projectFiles } from './workspace.js';
 
 export const DEFAULT_TASK = 'The test script fails. Investigate the cause and hand a precise fix to the coder.';
@@ -18,9 +19,39 @@ export interface HandoffConfig {
 }
 
 /** This example's own folder, from src/ (tsx) or dist/src/ (compiled). */
-function exampleRoot(): string {
+export function exampleRoot(): string {
   const here = dirname(fileURLToPath(import.meta.url));
   return basename(dirname(here)) === 'dist' ? dirname(dirname(here)) : dirname(here);
+}
+
+function readConfig(path: string): Record<string, unknown> {
+  try { return JSON.parse(readFileSync(path, 'utf8')); } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'ENOENT') throw Error(`Config file not found: ${path}. Create it with: cp config.example.json config.json`);
+    throw Error(`${path} is not valid JSON: ${error instanceof Error ? error.message : 'parse error'}`);
+  }
+}
+
+/** The model ID and its two rates. Adds a problem per field that cannot work for a live run. */
+function modelSettings(raw: Record<string, unknown>, problems: string[]): LiveModelConfig {
+  const model = typeof raw.model === 'string' ? raw.model : '';
+  const rate = (key: 'inputMicrousdPerMillionTokens' | 'outputMicrousdPerMillionTokens') => Number(raw[key]);
+  if (!model || model.includes('YOUR_')) problems.push('model: set an OpenAI model ID, for example "gpt-5.6-terra"');
+  for (const key of ['inputMicrousdPerMillionTokens', 'outputMicrousdPerMillionTokens'] as const)
+    if (!Number.isSafeInteger(rate(key)) || rate(key) <= 0) problems.push(`${key}: set the model's price in micro-USD per 1M tokens ($1 = 1000000)`);
+  return { model, inputMicrousdPerMillionTokens: rate('inputMicrousdPerMillionTokens'), outputMicrousdPerMillionTokens: rate('outputMicrousdPerMillionTokens') };
+}
+
+const fail = (path: string, problems: readonly string[]) => {
+  if (problems.length) throw Error(`${path}: ${problems.length} problem(s)\n${problems.map(item => `  - ${item}`).join('\n')}`);
+};
+
+/** The model and prices the demo uses: from config.example.json, or from the file passed with --config. */
+export function loadModelSettings(path: string): LiveModelConfig {
+  const problems: string[] = [];
+  const settings = modelSettings(readConfig(path), problems);
+  fail(path, problems);
+  return settings;
 }
 
 /**
@@ -28,12 +59,7 @@ function exampleRoot(): string {
  * for a live run, so `--analyze` works without a key or prices.
  */
 export function loadConfig(path: string, options: { live: boolean; broad: boolean; exampleRoot?: string }): HandoffConfig {
-  let raw: Record<string, unknown>;
-  try { raw = JSON.parse(readFileSync(path, 'utf8')); } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    if (code === 'ENOENT') throw Error(`Config file not found: ${path}. Create it with: cp config.example.json config.json`);
-    throw Error(`${path} is not valid JSON: ${error instanceof Error ? error.message : 'parse error'}`);
-  }
+  const raw = readConfig(path);
   const problems: string[] = [];
   const root = resolve(dirname(path), String(raw.project ?? '.'));
   let files: string[] = [];
@@ -75,15 +101,9 @@ export function loadConfig(path: string, options: { live: boolean; broad: boolea
     }
   }
 
-  const model = typeof raw.model === 'string' ? raw.model : '';
-  const rate = (key: 'inputMicrousdPerMillionTokens' | 'outputMicrousdPerMillionTokens') => Number(raw[key]);
-  if (options.live) {
-    if (!model || model.includes('YOUR_')) problems.push('model: set an OpenAI model ID, for example "gpt-5.6-terra"');
-    for (const key of ['inputMicrousdPerMillionTokens', 'outputMicrousdPerMillionTokens'] as const)
-      if (!Number.isSafeInteger(rate(key)) || rate(key) <= 0) problems.push(`${key}: set the model's price in micro-USD per 1M tokens ($1 = 1000000)`);
-    if (!process.env.OPENAI_API_KEY) problems.push('OPENAI_API_KEY is not set on this host (--analyze needs no key)');
-  }
-  if (problems.length) throw Error(`${path}: ${problems.length} problem(s)\n${problems.map(item => `  - ${item}`).join('\n')}`);
-  return { root, files, task: String(raw.task ?? DEFAULT_TASK), testScript, ...(writable ? { writable } : {}), model,
-    inputMicrousdPerMillionTokens: rate('inputMicrousdPerMillionTokens'), outputMicrousdPerMillionTokens: rate('outputMicrousdPerMillionTokens') };
+  // --analyze needs no model or prices, so they are checked only for a live run.
+  const settings = modelSettings(raw, options.live ? problems : []);
+  if (options.live && !process.env.OPENAI_API_KEY) problems.push('OPENAI_API_KEY is not set on this host (--analyze needs no key)');
+  fail(path, problems);
+  return { root, files, task: String(raw.task ?? DEFAULT_TASK), testScript, ...(writable ? { writable } : {}), ...settings };
 }

@@ -56,7 +56,9 @@ function operationReason(error: unknown): string {
 }
 
 export async function startGateway(options: { project: string; resourceType: ResourceType; resource: string; address: string;
-  signal: AbortSignal; deadlineMs: number; resolveCredential: () => Promise<ToolCredential>; endpoint?: string; logView?: string;
+  signal: AbortSignal; deadlineMs: number; resolveCredential: () => Promise<ToolCredential>; logView?: string;
+  /** Defaults to the global fetch, which calls Google. Tests inject one that redirects to an emulator. */
+  fetch?: typeof fetch;
   model: { respond(input: unknown): Promise<Response> };
   /** Trusted-host diagnostics (default: stderr). The agent only ever receives the gateway's sanitized HTTP status. */
   hostLog?: (line: string) => void }) {

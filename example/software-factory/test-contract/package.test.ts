@@ -22,7 +22,9 @@ test('installed Factory CLI and optional builder share canonical identities and 
     const factory = pack(join(repo, 'example/software-factory'));
     const cwd = join(root, 'consumer'); mkdirSync(cwd);
     writeFileSync(join(cwd, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
-    execFileSync('npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', join(root, runtime), join(root, factory)], { cwd, stdio: 'pipe' });
+    // npm ci does not populate all registry metadata needed to install the packed
+    // packages. Allow a cold runner to fetch it instead of requiring a warm cache.
+    execFileSync('npm', ['install', '--prefer-offline', '--ignore-scripts', '--no-audit', '--no-fund', join(root, runtime), join(root, factory)], { cwd, stdio: 'pipe' });
     const installedRuntime = join(cwd, 'node_modules/@intelligent-iterations/ii-agent-runtime');
     for (const removed of ['pipeline/run.js', 'pipeline/create-pipeline.js', 'providers/source/github/issue.js', 'providers/source/github/pipeline.js', 'providers/source/github/checkout.js', 'providers/source/github/secrets.js', 'providers/harness/codex/worker.js', 'providers/harness/codex/adapter.js', 'pipeline/setup-plan.js', 'runtime/authorization.js']) {
       assert.equal(existsSync(join(installedRuntime, 'dist', removed)), false, removed);

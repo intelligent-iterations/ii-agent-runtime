@@ -124,7 +124,7 @@ export function checkoutOf(directory: string): { repository?: string; branch?: s
 }
 
 const githubHints: Record<number, string> = {
-  401: ' (GITHUB_TOKEN was rejected)',
+  401: ' (GITHUB_TOKEN was rejected: set a current token, for example GITHUB_TOKEN=$(gh auth token))',
   403: ' (forbidden or rate limited)',
   404: ' (not found: check repository and branch in the grants file, and that GITHUB_TOKEN can read the repository)',
 };

@@ -11,6 +11,7 @@
     "check": "tsc --noEmit && tsx --test test/*.test.ts",
     "demo": "tsx src/cli.ts --demo",
     "start": "tsx src/cli.ts",
+    "test:demo": "tsx --test test/demo.test.ts",
     "test:package": "node scripts/standalone.mjs"
   },
   "dependencies": {

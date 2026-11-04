@@ -1,12 +1,13 @@
 import { createGrant, defineTool } from '@intelligent-iterations/ii-agent-runtime/runtime';
 import { githubContents } from '@intelligent-iterations/ii-agent-runtime/tools';
 
-// A coding agent that may edit only documentation on main of a repository that deploys to GCP.
+// The same agent narrowed to the README of the same repository and branch.
+const repository = 'GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp';
 const subject = 'agent:codex';
 const writeFile = defineTool({
   name: 'write-file',
   operation: githubContents().write,
-  credential: { provider: 'github', resource: 'acme/functions', key: 'functions-agent-key', assignment: subject },
+  credential: { provider: 'github', resource: repository, key: 'csi-provider-agent-key', assignment: subject },
 });
 
 export default {
@@ -14,6 +15,6 @@ export default {
   tools: [writeFile],
   grants: [createGrant({
     subject, tool: writeFile,
-    resources: { repository: ['acme/functions'], branch: ['main'], path: ['docs/guide.md'] },
+    resources: { repository: [repository], branch: ['main'], path: ['README.md'] },
   })],
 };

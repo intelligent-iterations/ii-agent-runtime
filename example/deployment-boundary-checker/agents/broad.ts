@@ -1,12 +1,14 @@
 import { createGrant, defineTool } from '@intelligent-iterations/ii-agent-runtime/runtime';
 import { githubContents } from '@intelligent-iterations/ii-agent-runtime/tools';
 
-// A coding agent that may edit the functions deploy script, application code, the root manifest and docs on main of a repository that deploys to GCP.
+// A coding agent that may edit the end-to-end test runner, the Go entry point, the Makefile and the README on main of
+// Google's public Secret Manager provider for the Secrets Store CSI Driver. Its e2e workflow signs in to Google Cloud.
+const repository = 'GoogleCloudPlatform/secrets-store-csi-driver-provider-gcp';
 const subject = 'agent:codex';
 const writeFile = defineTool({
   name: 'write-file',
   operation: githubContents().write,
-  credential: { provider: 'github', resource: 'acme/functions', key: 'functions-agent-key', assignment: subject },
+  credential: { provider: 'github', resource: repository, key: 'csi-provider-agent-key', assignment: subject },
 });
 
 export default {
@@ -14,6 +16,6 @@ export default {
   tools: [writeFile],
   grants: [createGrant({
     subject, tool: writeFile,
-    resources: { repository: ['acme/functions'], branch: ['main'], path: ['scripts/deploy-functions.sh', 'src/index.ts', 'package.json', 'docs/guide.md'] },
+    resources: { repository: [repository], branch: ['main'], path: ['test/infra/runner.sh', 'main.go', 'Makefile', 'README.md'] },
   })],
 };
