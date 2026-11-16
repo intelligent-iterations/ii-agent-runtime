@@ -1,0 +1,14 @@
+{
+  "editor": "moviepy",
+  "project": "./project",
+  "inputs": ["render.sh"],
+  "command": ["sh", "render.sh"],
+  "output": "./results",
+  "cpu": 1,
+  "memoryMiB": 1024,
+  "diskGiB": 2,
+  "timeoutSeconds": 600,
+  "maxInputMiB": 1,
+  "maxOutputMiB": 16,
+  "expectedVideos": 1
+}

@@ -449,6 +449,11 @@ the pull request. A clean machine and a second organization have not been tested
 
 [Package exports](src/index.ts)
 
+The [video editing example](example/video-editing/) renders a prepared HyperFrames,
+Remotion or MoviePy project in a bounded, offline Docker worker, then validates the
+exported portrait MP4s in a fresh worker. `npm run demo` renders its bundled sample
+and records the run and its cleanup.
+
 ## Example: software factory
 
 `example/software-factory` is a reference
