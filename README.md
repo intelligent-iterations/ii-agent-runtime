@@ -1,6 +1,5 @@
 # II Agent Runtime 🫍
 
-[![Security CI](https://github.com/intelligent-iterations/ii-agent-runtime/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/intelligent-iterations/ii-agent-runtime/actions/workflows/codeql.yml)
 [![Source version](https://img.shields.io/github/package-json/v/intelligent-iterations/ii-agent-runtime/main?label=source%20version)](package.json)
 [![Node.js: >=22.16](https://img.shields.io/badge/Node.js-%3E%3D22.16-339933?logo=nodedotjs&logoColor=white)](package.json)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
