@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 1,
+  "environment": {
+    "machine": "Mac mini, Apple M4",
+    "os": "macOS 26.5.1",
+    "docker": "Colima 0.10.1, Docker Engine 29.2.1 (containerd image store)",
+    "node": "22.22.0"
+  },
+  "scope": "Live runs of npm run demo for each editor and of the hostile project, on the revision that added this file. Each run rendered in one offline worker, destroyed it, and validated the MP4s in a second fresh worker; checkpoints show both workers provisioned and cleaned.",
+  "runs": [
+    {
+      "runId": "7803831f-2c69-4e2b-953b-08602a2d4549",
+      "editor": "hyperframes",
+      "project": "sample",
+      "startedAt": "2026-11-16T05:28:06.416Z",
+      "finishedAt": "2026-11-16T05:29:58.711Z",
+      "renderSeconds": 112,
+      "status": "passed",
+      "cleanup": "confirmed",
+      "command": [
+        "sh",
+        "hyperframes/render.sh"
+      ],
+      "limits": {
+        "cpu": 2,
+        "memoryMiB": 4096,
+        "diskGiB": 10,
+        "timeoutSeconds": 1800,
+        "maxInputMiB": 480,
+        "maxOutputMiB": 128,
+        "expectedVideos": 2
+      },
+      "image": "video-editing-hyperframes@sha256:d506489ae619f1d21845a1dd6fb41da9cd552c918180d15b7791af41efe5aef7",
+      "inputs": {
+        "make-source.sh": {
+          "bytes": 931,
+          "sha256": "fd5cef1c8df9636695ece92a5835a08b6a0dfdf04d403939ebb212b8be2659ca"
+        },
+        "shorts.json": {
+          "bytes": 188,
+          "sha256": "bdf4881ca05f39c3987426f9e6a3b0d38a2b7e94582762fd487f05fe388bd72a"
+        },
+        "captions.json": {
+          "bytes": 505,
+          "sha256": "4b7fda896b8ef44eaa1497eeb369b00955143606827dc65c66cf1c16ba9b8829"
+        },
+        "hyperframes/build.mjs": {
+          "bytes": 3357,
+          "sha256": "df888147a8a6824e435895367e94f7d9e69d11ae379d4a5330efce2ff69db753"
+        },
+        "hyperframes/render.sh": {
+          "bytes": 154,
+          "sha256": "e83c8910978c117458fb9da2c4529c82f777b2bfc409d1b3bff0030f6b5d9fde"
+        }
+      },
+      "runtime": {
+        "backend": "docker-tofu",
+        "implementationDigest": "sha256:5d5ca15a2b30be6c195b4a7f256b135d86c914056bbd4d2d4e7aedf40a3d6609"
+      },
+      "checkpoints": [
+        "preparing",
+        "provisioning",
+        "cleaned",
+        "preparing",
+        "provisioning",
+        "cleaned"
+      ],
+      "videos": [
+        {
+          "file": "short-1.mp4",
+          "bytes": 886860,
+          "sha256": "28a10fcda9ff0cf081590ad9b87a35c8506e5f4fb590f8bb0b2afeacc9d10dc6",
+          "width": 1080,
+          "height": 1920,
+          "duration_s": 6,
+          "audio": true,
+          "full_decode": "passed"
+        },
+        {
+          "file": "short-2.mp4",
+          "bytes": 768077,
+          "sha256": "37af213f3671ede25118fb123b90465dd30224b13a3291d44d97b691c69f6e01",
+          "width": 1080,
+          "height": 1920,
+          "duration_s": 6,
+          "audio": true,
+          "full_decode": "passed"
+        }
+      ],
+      "archive": {
+        "file": "videos.tar",
+        "bytes": 1658880,
+        "sha256": "80412f5c861da7e9e018a0f7e79cfff4dd4b694f5e1730fa7559eab26e8303fe"
+      }
+    },
+    {
+      "runId": "4edce127-12db-4deb-bd7e-3a6b3b885b5e",
+      "editor": "moviepy",
+      "project": "sample",
+      "startedAt": "2026-11-16T05:26:08.030Z",
+      "finishedAt": "2026-11-16T05:27:46.017Z",
+      "renderSeconds": 98,
+      "status": "passed",
+      "cleanup": "confirmed",
+      "command": [
+        "sh",
+        "moviepy/render.sh"
+      ],
+      "limits": {
+        "cpu": 2,
+        "memoryMiB": 4096,
+        "diskGiB": 10,
+        "timeoutSeconds": 1800,
+        "maxInputMiB": 480,
+        "maxOutputMiB": 128,
+        "expectedVideos": 2
+      },
+      "image": "video-editing-moviepy@sha256:2f73fd75ab27eb0781caa964eb9cda151870933e50e551cb062cc04644f3e61d",
+      "inputs": {
+        "make-source.sh": {
+          "bytes": 931,
+          "sha256": "fd5cef1c8df9636695ece92a5835a08b6a0dfdf04d403939ebb212b8be2659ca"
+        },
+        "shorts.json": {
+          "bytes": 188,
+          "sha256": "bdf4881ca05f39c3987426f9e6a3b0d38a2b7e94582762fd487f05fe388bd72a"
+        },
+        "captions.json": {
+          "bytes": 505,
+          "sha256": "4b7fda896b8ef44eaa1497eeb369b00955143606827dc65c66cf1c16ba9b8829"
+        },
+        "moviepy/render.py": {
+          "bytes": 2061,
+          "sha256": "340d696006634f82fb87b6aafabfa13a2ac9c5baa07074cce71cfc884a7e3763"
+        },
+        "moviepy/render.sh": {
+          "bytes": 157,
+          "sha256": "756b07d7c47f6cbc8f09f08337a189b0f09bf9cf49ed734ddeddfb5f66da11df"
+        }
+      },
+      "runtime": {
+        "backend": "docker-tofu",
+        "implementationDigest": "sha256:5d5ca15a2b30be6c195b4a7f256b135d86c914056bbd4d2d4e7aedf40a3d6609"
+      },
+      "checkpoints": [
+        "preparing",
+        "provisioning",
+        "cleaned",
+        "preparing",
+        "provisioning",
+        "cleaned"
+      ],
+      "videos": [
+        {
+          "file": "short-1.mp4",
+          "bytes": 473946,
+          "sha256": "c8c2a36e749e7ee75a977d867ceb1dc462977527920c86cca78e0a4189c9a1f3",
+          "width": 1080,
+          "height": 1920,
+          "duration_s": 6,
+          "audio": true,
+          "full_decode": "passed"
+        },
+        {
+          "file": "short-2.mp4",
+          "bytes": 425012,
+          "sha256": "d49f44eee4e5749b00c939e2b47c33807279962384bf5f1e44655a030fb625d8",
+          "width": 1080,
+          "height": 1920,
+          "duration_s": 6,
+          "audio": true,
+          "full_decode": "passed"
+        }
+      ],
+      "archive": {
+        "file": "videos.tar",
+        "bytes": 911360,
+        "sha256": "704bf453994847f0161a30fec15d2911095fe53fb20449793c666a137af7a994"
+      }
+    },
+    {
+      "runId": "e814edfa-cea5-4d2c-b816-b91be0e8b292",
+      "editor": "remotion",
+      "project": "sample",
+      "startedAt": "2026-11-16T05:43:35.418Z",
+      "finishedAt": "2026-11-16T05:46:34.558Z",
+      "renderSeconds": 179,
+      "status": "passed",
+      "cleanup": "confirmed",
+      "command": [
+        "sh",
+        "remotion/render.sh"
+      ],
+      "limits": {
+        "cpu": 2,
+        "memoryMiB": 4096,
+        "diskGiB": 10,
+        "timeoutSeconds": 1800,
+        "maxInputMiB": 480,
+        "maxOutputMiB": 128,
+        "expectedVideos": 2
+      },
+      "image": "video-editing-remotion@sha256:0c018d9e4553f316f81d6d74d9ca93c59fd2805ba79e6cfa7f8b2259feb0d48c",
+      "inputs": {
+        "make-source.sh": {
+          "bytes": 931,
+          "sha256": "fd5cef1c8df9636695ece92a5835a08b6a0dfdf04d403939ebb212b8be2659ca"
+        },
+        "shorts.json": {
+          "bytes": 188,
+          "sha256": "bdf4881ca05f39c3987426f9e6a3b0d38a2b7e94582762fd487f05fe388bd72a"
+        },
+        "captions.json": {
+          "bytes": 505,
+          "sha256": "4b7fda896b8ef44eaa1497eeb369b00955143606827dc65c66cf1c16ba9b8829"
+        },
+        "remotion/package.json": {
+          "bytes": 182,
+          "sha256": "ffcdafbb41a95f319913fb665aae7963a71610252ab459b3b01ec567118b766f"
+        },
+        "remotion/render.sh": {
+          "bytes": 600,
+          "sha256": "6e29c3df2cde52ce45d2bb1394cc17160a042f4a283922ff7578764dac843ed8"
+        },
+        "remotion/src/Short.tsx": {
+          "bytes": 1667,
+          "sha256": "3ff1e85b24352a6cd8dd653f9a59b12cd0a67d113ae140a6f5c82fd437124619"
+        },
+        "remotion/src/Root.tsx": {
+          "bytes": 760,
+          "sha256": "0ad808f1796b53732c4e566a7afd0522ba37138902e4cc6effaf7e471147b231"
+        },
+        "remotion/src/index.ts": {
+          "bytes": 89,
+          "sha256": "a58f804bf74bab68b4549aa5c715eb4a89ec5835206d198fc79b462b4fc71ef9"
+        }
+      },
+      "runtime": {
+        "backend": "docker-tofu",
+        "implementationDigest": "sha256:5d5ca15a2b30be6c195b4a7f256b135d86c914056bbd4d2d4e7aedf40a3d6609"
+      },
+      "checkpoints": [
+        "preparing",
+        "provisioning",
+        "cleaned",
+        "preparing",
+        "provisioning",
+        "cleaned"
+      ],
+      "videos": [
+        {
+          "file": "short-1.mp4",
+          "bytes": 1108268,
+          "sha256": "ba9ff61c9c39cdacf5153177ea552777910d43e5fe5065f9f5017f7999fdefa2",
+          "width": 1080,
+          "height": 1920,
+          "duration_s": 6.016,
+          "audio": true,
+          "full_decode": "passed"
+        },
+        {
+          "file": "short-2.mp4",
+          "bytes": 927927,
+          "sha256": "7121d202137d23139dbf605e9085f308f5ece398b5005963a314c289b9327d28",
+          "width": 1080,
+          "height": 1920,
+          "duration_s": 6.016,
+          "audio": true,
+          "full_decode": "passed"
+        }
+      ],
+      "archive": {
+        "file": "videos.tar",
+        "bytes": 2048000,
+        "sha256": "5a6e28da693cfd20c7a636ec44c80b2653ff8f756a05e511627f1a9fd7a75a7d"
+      }
+    },
+    {
+      "runId": "db78f043-b931-4287-b16d-c510cad24db0",
+      "editor": "moviepy",
+      "project": "test/live/hostile/project",
+      "startedAt": "2026-11-16T05:46:40.356Z",
+      "finishedAt": "2026-11-16T05:47:21.511Z",
+      "renderSeconds": 41,
+      "status": "passed",
+      "cleanup": "confirmed",
+      "command": [
+        "sh",
+        "render.sh"
+      ],
+      "limits": {
+        "cpu": 1,
+        "memoryMiB": 1024,
+        "diskGiB": 2,
+        "timeoutSeconds": 600,
+        "maxInputMiB": 1,
+        "maxOutputMiB": 16,
+        "expectedVideos": 1
+      },
+      "image": "video-editing-moviepy@sha256:2f73fd75ab27eb0781caa964eb9cda151870933e50e551cb062cc04644f3e61d",
+      "inputs": {
+        "render.sh": {
+          "bytes": 1114,
+          "sha256": "11b28c2a318bf55b036835ae9dc2466ed316ce317c920463b7f9f7c8231fa24d"
+        }
+      },
+      "runtime": {
+        "backend": "docker-tofu",
+        "implementationDigest": "sha256:5d5ca15a2b30be6c195b4a7f256b135d86c914056bbd4d2d4e7aedf40a3d6609"
+      },
+      "checkpoints": [
+        "preparing",
+        "provisioning",
+        "cleaned",
+        "preparing",
+        "provisioning",
+        "cleaned"
+      ],
+      "videos": [
+        {
+          "file": "short.mp4",
+          "bytes": 23260,
+          "sha256": "647065d098f8cbaf74b816af3f693339bfbacdda6ff4075fc5ceb63f2f1fb19b",
+          "width": 360,
+          "height": 640,
+          "duration_s": 2,
+          "audio": true,
+          "full_decode": "passed"
+        }
+      ],
+      "archive": {
+        "file": "videos.tar",
+        "bytes": 30720,
+        "sha256": "5d5cd9149aea1b4a87ec76afa1fee8b6886a138f3762e331bafc199009b59210"
+      }
+    }
+  ]
+}

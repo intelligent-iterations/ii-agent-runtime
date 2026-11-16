@@ -1,0 +1,5 @@
+{
+  "name": "video-editing-sample-remotion",
+  "private": true,
+  "description": "Remotion sample. Its packages come from the renderer image (images/Dockerfile), not npm install."
+}

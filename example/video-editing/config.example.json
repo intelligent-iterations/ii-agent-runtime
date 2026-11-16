@@ -1,0 +1,22 @@
+{
+  "editor": "moviepy",
+  "project": "./sample",
+  "inputs": [
+    "make-source.sh",
+    "shorts.json",
+    "captions.json",
+    "moviepy"
+  ],
+  "command": [
+    "sh",
+    "moviepy/render.sh"
+  ],
+  "output": "./results/moviepy",
+  "cpu": 2,
+  "memoryMiB": 4096,
+  "diskGiB": 10,
+  "timeoutSeconds": 1800,
+  "maxInputMiB": 480,
+  "maxOutputMiB": 128,
+  "expectedVideos": 2
+}

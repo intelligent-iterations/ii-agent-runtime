@@ -1,0 +1,10 @@
+[
+  {"text": "This short was cut", "start": 1.2, "end": 2.6},
+  {"text": "from generated footage", "start": 2.6, "end": 4.2},
+  {"text": "inside an offline worker", "start": 4.2, "end": 5.8},
+  {"text": "with fixed CPU and memory", "start": 5.8, "end": 7.0},
+  {"text": "The worker sees", "start": 9.2, "end": 10.4},
+  {"text": "only these project files", "start": 10.4, "end": 12.0},
+  {"text": "and is removed", "start": 12.0, "end": 13.4},
+  {"text": "before validation", "start": 13.4, "end": 15.0}
+]
