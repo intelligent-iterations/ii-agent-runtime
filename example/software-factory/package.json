@@ -30,7 +30,7 @@
     "@intelligent-iterations/ii-agent-runtime": "file:../..",
     "@types/node": "22.20.4",
     "tsx": "4.23.15",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   },
   "bin": {
     "software-factory": "dist/actions-cli.js"
