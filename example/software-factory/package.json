@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@intelligent-iterations/ii-agent-runtime": "file:../..",
-    "@types/node": "22.20.4",
+    "@types/node": "26.6.6",
     "tsx": "4.23.15",
     "typescript": "5.9.3"
   },
